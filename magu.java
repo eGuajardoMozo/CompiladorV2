@@ -236,23 +236,6 @@ Cuadruplo quad = new Cuadruplo();
 
   final public void Exp() throws ParseException {Token o, op1, op2;
     Termino();
-if( !pOperators.empty()) {
-
-                        if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
-
-                                op2 = (Token)pOperands.pop();
-                                op1 = (Token)pOperands.pop();
-                                o = (Token)pOperators.pop();
-
-                                Cuadruplo quad = new Cuadruplo();
-                        quad.operador = o;
-                        quad.oper1 = op1;
-                        quad.oper2 = op2;
-                        Cuadruplo.displayCuadruplo(quad);
-
-                        System.out.println("ENTRA AQUI");
-                    }
-                }
     label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -272,23 +255,6 @@ pOperators.push(o); // meter el + a la stack de operadores
 
                         System.out.println("Entra aqui " + pOperators.peek());
         Termino();
-if( !pOperators.empty()) {
-
-                                if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
-
-                                        op2 = (Token)pOperands.pop();
-                                        op1 = (Token)pOperands.pop();
-                                        o = (Token)pOperators.pop();
-
-                                        Cuadruplo quad = new Cuadruplo();
-                                        quad.operador = o;
-                                        quad.oper1 = op1;
-                                        quad.oper2 = op2;
-                                        Cuadruplo.displayCuadruplo(quad);
-
-                                        System.out.println("ENTRA AQUI");
-                                }
-                        }
         break;
         }
       case TK_MINUS:{
@@ -296,23 +262,6 @@ if( !pOperators.empty()) {
 pOperators.push(o); // meter el - a la stack de operadores
 
         Termino();
-if( !pOperators.empty()) {
-
-                                if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
-
-                                        op2 = (Token)pOperands.pop();
-                                        op1 = (Token)pOperands.pop();
-                                        o = (Token)pOperators.pop();
-
-                                        Cuadruplo quad = new Cuadruplo();
-                                        quad.operador = o;
-                                        quad.oper1 = op1;
-                                        quad.oper2 = op2;
-                                        Cuadruplo.displayCuadruplo(quad);
-
-                                        System.out.println("ENTRA AQUI");
-                                }
-                        }
         break;
         }
       default:
@@ -325,23 +274,6 @@ if( !pOperators.empty()) {
 
   final public void Termino() throws ParseException {Token o, op1, op2;
     Factor();
-if( !pOperators.empty()) {
-
-                        if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
-
-                                op2 = (Token)pOperands.pop();
-                                op1 = (Token)pOperands.pop();
-                                o = (Token)pOperators.pop();
-
-                                Cuadruplo quad = new Cuadruplo();
-                        quad.operador = o;
-                        quad.oper1 = op1;
-                        quad.oper2 = op2;
-                        Cuadruplo.displayCuadruplo(quad);
-
-                        System.out.println("ENTRA AQUI");
-                    }
-                }
     label_7:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -360,23 +292,7 @@ if( !pOperators.empty()) {
 pOperators.push(o); // meter el * a la stack de operadores
 
         Factor();
-if( !pOperators.empty()) {
-
-                                if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
-
-                                        op2 = (Token)pOperands.pop();
-                                        op1 = (Token)pOperands.pop();
-                                        o = (Token)pOperators.pop();
-
-                                        Cuadruplo quad = new Cuadruplo();
-                                        quad.operador = o;
-                                        quad.oper1 = op1;
-                                        quad.oper2 = op2;
-                                        Cuadruplo.displayCuadruplo(quad);
-
-                                        System.out.println("ENTRA AQUI");
-                                }
-                        }
+        PendingOperator(o,"+","-");
         break;
         }
       case TK_DIV:{
@@ -384,23 +300,7 @@ if( !pOperators.empty()) {
 pOperators.push(o); // meter el / a la stack de operadores
 
         Factor();
-if( !pOperators.empty()) {
-
-                                if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
-
-                                        op2 = (Token)pOperands.pop();
-                                        op1 = (Token)pOperands.pop();
-                                        o = (Token)pOperators.pop();
-
-                                        Cuadruplo quad = new Cuadruplo();
-                                        quad.operador = o;
-                                        quad.oper1 = op1;
-                                        quad.oper2 = op2;
-                                        Cuadruplo.displayCuadruplo(quad);
-
-                                        System.out.println("ENTRA AQUI");
-                                }
-                        }
+        PendingOperator(o,"+","-");
         break;
         }
       default:
@@ -423,6 +323,7 @@ if( !pOperators.empty()) {
 pOperands.push(o); // meter el id a la stack de operandos
 
                 System.out.println("Entra aqui " + pOperands.peek() );
+      PendingOperator(o,"*","/");
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_CTE_I:{
@@ -431,6 +332,7 @@ pOperands.push(o); // meter el id a la stack de operandos
 pOperands.push(o); // meter la constante a la stack de operandos
 
                 System.out.println("Entra aqui " + pOperands.peek());
+        PendingOperator(o,"*","/");
         break;
         }
       default:
@@ -663,6 +565,33 @@ pOperands.push(o); // meter la constante a la stack de operandos
     }
   }
 
+// --------- FUNCIONES AUXILIARES -------------  //
+
+
+// Punto 4 y 5, si hay operadores pendientes...
+  final public void PendingOperator(Token o, String operator1, String operator2) throws ParseException {Token op1,  op2;
+// Si la pila no esta vacía
+                if( !pOperators.empty()) {
+
+                        // Y el tope de la pila es alguno de los operadores mandados. +- o */
+                        if ( ((Token)pOperators.peek()).image == operator1 || ((Token)pOperators.peek()).image == operator2  ) {
+
+                                // Sacar los operandos y el operador de las pilas
+                                op2 = (Token)pOperands.pop();
+                                op1 = (Token)pOperands.pop();
+                                o = (Token)pOperators.pop();
+
+                                // Crear un cuadruplo y meterlos
+                                Cuadruplo quad = new Cuadruplo();
+                        quad.operador = o;
+                        quad.oper1 = op1;
+                        quad.oper2 = op2;
+
+                        Cuadruplo.displayCuadruplo(quad);
+                    }
+                }
+  }
+
   private boolean jj_2_1(int xla)
  {
     jj_la = xla; jj_lastpos = jj_scanpos = token;
@@ -727,76 +656,16 @@ pOperands.push(o); // meter la constante a la stack de operandos
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3R_22()
+  private boolean jj_3R_23()
  {
     if (jj_scan_token(TK_HOME)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_11()
+  private boolean jj_3R_12()
  {
     if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_21()
- {
-    if (jj_scan_token(TK_CURVE)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_20()
- {
-    if (jj_scan_token(TK_MOVE)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_19()
- {
-    if (jj_scan_token(TK_PENCILDOWN)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_6()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18()
- {
-    if (jj_scan_token(TK_PENCILUP)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_3()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_17()
- {
-    if (jj_scan_token(TK_PRINT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
@@ -810,31 +679,90 @@ pOperands.push(o); // meter la constante a la stack de operandos
 
   private boolean jj_3_7()
  {
-    if (jj_3R_11()) return true;
+    if (jj_3R_12()) return true;
     return false;
   }
 
-  private boolean jj_3R_16()
+  private boolean jj_3R_22()
  {
-    if (jj_scan_token(TK_INPUT)) return true;
+    if (jj_scan_token(TK_CURVE)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_15()
+  private boolean jj_3R_21()
  {
-    if (jj_scan_token(TK_RIGHT)) return true;
+    if (jj_scan_token(TK_MOVE)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
   private boolean jj_3_5()
  {
-    if (jj_3R_11()) return true;
+    if (jj_3R_12()) return true;
     return false;
   }
 
-  private boolean jj_3R_14()
+  private boolean jj_3_1()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_20()
+ {
+    if (jj_scan_token(TK_PENCILDOWN)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19()
+ {
+    if (jj_scan_token(TK_PENCILUP)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_11()
+ {
+    return false;
+  }
+
+  private boolean jj_3_8()
+ {
+    if (jj_3R_13()) return true;
+    return false;
+  }
+
+  private boolean jj_3_6()
+ {
+    if (jj_3R_13()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18()
+ {
+    if (jj_scan_token(TK_PRINT)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_17()
+ {
+    if (jj_scan_token(TK_INPUT)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_16()
+ {
+    if (jj_scan_token(TK_RIGHT)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_15()
  {
     if (jj_scan_token(TK_LEFT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
@@ -848,19 +776,24 @@ pOperands.push(o); // meter la constante a la stack de operandos
     return false;
   }
 
-  private boolean jj_3R_13()
+  private boolean jj_3_3()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_14()
  {
     if (jj_scan_token(TK_FORWARD)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_12()
+  private boolean jj_3R_13()
  {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_13()) {
-    jj_scanpos = xsp;
     if (jj_3R_14()) {
     jj_scanpos = xsp;
     if (jj_3R_15()) {
@@ -877,7 +810,9 @@ pOperands.push(o); // meter la constante a la stack de operandos
     jj_scanpos = xsp;
     if (jj_3R_21()) {
     jj_scanpos = xsp;
-    if (jj_3R_22()) return true;
+    if (jj_3R_22()) {
+    jj_scanpos = xsp;
+    if (jj_3R_23()) return true;
     }
     }
     }

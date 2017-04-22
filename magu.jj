@@ -137,26 +137,6 @@ void Funcion() : {}
 void Exp() : {Token o, op1, op2;}
 {
 	Termino()
-	
-	{
-		if( !pOperators.empty()) {
-
-			if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
-				
-				op2 = (Token)pOperands.pop();
-				op1 = (Token)pOperands.pop();
-				o = (Token)pOperators.pop();
-				
-				Cuadruplo quad = new Cuadruplo();
-		    	quad.operador = o;
-		    	quad.oper1 = op1;
-		    	quad.oper2 = op2;
-		    	Cuadruplo.displayCuadruplo(quad);
-
-		    	System.out.println("ENTRA AQUI");
-		    }
-		}
-	}
 
 	( 
 		o = <TK_PLUS> 
@@ -167,26 +147,6 @@ void Exp() : {Token o, op1, op2;}
 		}
 
 		Termino()
-		
-		{
-			if( !pOperators.empty()) {
-
-				if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
-					
-					op2 = (Token)pOperands.pop();
-					op1 = (Token)pOperands.pop();
-					o = (Token)pOperators.pop();
-				
-					Cuadruplo quad = new Cuadruplo();
-					quad.operador = o;
-					quad.oper1 = op1;
-					quad.oper2 = op2;
-					Cuadruplo.displayCuadruplo(quad);
-
-					System.out.println("ENTRA AQUI");
-				}
-			}
-		}
 
 		| 
 
@@ -196,26 +156,6 @@ void Exp() : {Token o, op1, op2;}
 		}
 
 		Termino()
-		
-		{
-			if( !pOperators.empty()) {
-
-				if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
-				
-					op2 = (Token)pOperands.pop();
-					op1 = (Token)pOperands.pop();
-					o = (Token)pOperators.pop();
-				
-					Cuadruplo quad = new Cuadruplo();
-					quad.operador = o;
-					quad.oper1 = op1;
-					quad.oper2 = op2;
-					Cuadruplo.displayCuadruplo(quad);
-
-					System.out.println("ENTRA AQUI");
-				}
-			}
-		}
 
 	)*
 		
@@ -225,26 +165,6 @@ void Termino() : {Token o, op1, op2;}
 {
 	Factor()
 	
-	{
-		if( !pOperators.empty()) {
-
-			if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
-				
-				op2 = (Token)pOperands.pop();
-				op1 = (Token)pOperands.pop();
-				o = (Token)pOperators.pop();
-				
-				Cuadruplo quad = new Cuadruplo();
-		    	quad.operador = o;
-		    	quad.oper1 = op1;
-		    	quad.oper2 = op2;
-		    	Cuadruplo.displayCuadruplo(quad);
-
-		    	System.out.println("ENTRA AQUI");
-		    }
-		}
-	}
-	
 	( 
 		o = <TK_MULT> 
 		{
@@ -252,25 +172,7 @@ void Termino() : {Token o, op1, op2;}
 		}
 
 		Factor()
-		{
-			if( !pOperators.empty()) {
-
-				if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
-				
-					op2 = (Token)pOperands.pop();
-					op1 = (Token)pOperands.pop();
-					o = (Token)pOperators.pop();
-				
-					Cuadruplo quad = new Cuadruplo();
-					quad.operador = o;
-					quad.oper1 = op1;
-					quad.oper2 = op2;
-					Cuadruplo.displayCuadruplo(quad);
-
-					System.out.println("ENTRA AQUI");
-				}
-			}
-		}
+		PendingOperator(o,"+","-")
 
 		| 
 
@@ -280,25 +182,7 @@ void Termino() : {Token o, op1, op2;}
 		}
 
 		Factor()
-		{
-			if( !pOperators.empty()) {
-
-				if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
-				
-					op2 = (Token)pOperands.pop();
-					op1 = (Token)pOperands.pop();
-					o = (Token)pOperators.pop();
-				
-					Cuadruplo quad = new Cuadruplo();
-					quad.operador = o;
-					quad.oper1 = op1;
-					quad.oper2 = op2;
-					Cuadruplo.displayCuadruplo(quad);
-
-					System.out.println("ENTRA AQUI");
-				}
-			}
-		}
+		PendingOperator(o,"+","-")
 
 	)*
 
@@ -320,6 +204,7 @@ void Factor() : {Token o;}
 
 		System.out.println("Entra aqui " + pOperands.peek() );	
 	}
+	PendingOperator(o,"*","/")
 
 	|
 
@@ -330,6 +215,7 @@ void Factor() : {Token o;}
 
 		System.out.println("Entra aqui " + pOperands.peek());
 	}
+	PendingOperator(o,"*","/")
 }
 
 
@@ -401,4 +287,39 @@ void Condicion() : {}
 void Arreglo() : {}
 {
 	<TK_ARR> <TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> (<TK_EQ> <TK_LPAR> Exp() (<TK_COMMA> Exp() )* <TK_RPAR> )?
+}
+
+
+
+
+
+
+// --------- FUNCIONES AUXILIARES -------------  //
+
+
+// Punto 4 y 5, si hay operadores pendientes...
+void PendingOperator(Token o, String operator1, String operator2) : {Token op1,  op2;}
+{
+	{
+		// Si la pila no esta vacía
+		if( !pOperators.empty()) {
+
+			// Y el tope de la pila es alguno de los operadores mandados. +- o */
+			if ( ((Token)pOperators.peek()).image == operator1 || ((Token)pOperators.peek()).image == operator2  ) {
+
+				// Sacar los operandos y el operador de las pilas
+				op2 = (Token)pOperands.pop();
+				op1 = (Token)pOperands.pop();
+				o = (Token)pOperators.pop();
+
+				// Crear un cuadruplo y meterlos
+				Cuadruplo quad = new Cuadruplo();
+		    	quad.operador = o;
+		    	quad.oper1 = op1;
+		    	quad.oper2 = op2;
+
+		    	Cuadruplo.displayCuadruplo(quad);
+		    }
+		}
+	}
 }
