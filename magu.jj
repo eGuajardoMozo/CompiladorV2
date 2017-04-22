@@ -11,6 +11,8 @@ options {
 
 PARSER_BEGIN(magu)
 
+import java.util.*;
+
 class magu
 {
 
@@ -28,6 +30,10 @@ class magu
 			System.out.println("Error!");
 		}
 	}
+
+	Stack pOperators = new Stack();
+	Stack pOperands = new Stack();
+	Queue<Cuadruplo> cuadruplos = new LinkedList<Cuadruplo>();
 	
 }
 PARSER_END(magu)
@@ -81,10 +87,15 @@ void Programa() : {}
     ( Asignacion() )* ( Definicion_Func() )* ( Arreglo() )* Secuencia()  <EOF>
 }
 
-void Func() : {}
+void Func() : {Token o, op1, op2, r;}
 {
     ( 
-    	  <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR>
+    	  o = <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR> 
+    	  {
+    	  		Cuadruplo quad = new Cuadruplo();
+    	  		quad.operador = o;
+    	  		Cuadruplo.displayCuadruplo(quad);
+    	  }
     	| <TK_LEFT> <TK_LPAR> Exp() <TK_RPAR>
     	| <TK_RIGHT> <TK_LPAR>  Exp() <TK_RPAR>
     	| <TK_INPUT> <TK_LPAR> <TK_ID> <TK_RPAR>
@@ -123,42 +134,101 @@ void Funcion() : {}
     <TK_ID> <TK_LPAR> ( ( Exp() ) ( <TK_COMMA> Exp() )* )? <TK_RPAR>
 }
 
-void Exp() : {}
+void Exp() : {Token o, op1, op2;}
 {
 	Termino()
+
 	( 
-		 <TK_PLUS> Termino()
+		o = <TK_PLUS> 
+		{
+			pOperators.push(o); // meter el + a la stack de operadores
+
+			System.out.println("Entra aqui " + pOperators.peek());
+		}
+
+		Termino()
+
 		| 
-		<TK_MINUS> Termino()
+
+		o = <TK_MINUS> 
+		{
+			pOperators.push(o); // meter el - a la stack de operadores
+		}
+
+		Termino()
+
 		)*
 }
 
-void Termino() : {}
+void Termino() : {Token o, op1, op2;}
 {
 	Factor()
 	( 
-		<TK_MULT> Factor()
+		o = <TK_MULT> 
+		{
+			pOperators.push(o); // meter el * a la stack de operadores
+		}
+
+		Factor()
+
 		| 
-		<TK_DIV> Factor()
+
+		o = <TK_DIV>
+		{
+			pOperators.push(o); // meter el / a la stack de operadores
+		}
+
+		Factor()
+
 		)*
+
+	{
+		if( !pOperators.empty()) {
+
+			if ( ((Token)pOperators.pop()).image == "+" || ((Token)pOperators.pop()).image == "-"  ) {
+
+				op2 = (Token)pOperands.pop();
+				op1 = (Token)pOperands.pop();
+				o = (Token)pOperators.pop();
+
+				Cuadruplo quad = new Cuadruplo();
+		    	quad.operador = o;
+		    	quad.oper1 = op1;
+		    	quad.oper2 = op2;
+		    	Cuadruplo.displayCuadruplo(quad);
+
+		    	System.out.println("ENTRA AQUI");
+		    }
+		}
+	}
 }
 
-void Factor() : {}
+void Factor() : {Token o;}
 {
 	LOOKAHEAD(2)
 
 	//indice de arreglo
-	<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
+	//t = <TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
 
-	|
+	//|
 
 	// variable
-	<TK_ID>
+	o = <TK_ID>
+	{
+		pOperands.push(o); // meter el id a la stack de operandos
+
+		System.out.println("Entra aqui " + pOperands.peek() );	
+	}
 
 	|
 
 	//constante
-	<TK_CTE_I>
+	o = <TK_CTE_I>
+	{
+		pOperands.push(o); // meter la constante a la stack de operandos
+
+		System.out.println("Entra aqui " + pOperands.peek());
+	}
 }
 
 
