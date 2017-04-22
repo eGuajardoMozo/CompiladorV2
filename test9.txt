@@ -1,0 +1,23 @@
+adios = 2
+test = 5
+
+func hola (adios, test)
+{
+	test = 8,
+	print ("dentro de la funcion test vale: " + test),
+	print ("dentro de la funcion adios vale: " + adios)
+}
+
+func hola2 (adios)
+{
+	test = 200,
+	print ("dentro de la funcion test vale: " + test)
+}
+	
+{
+	print ("afuera de la funcion test vale: " + test),
+	sup = 44
+}
+
+
+

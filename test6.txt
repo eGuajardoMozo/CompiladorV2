@@ -1,0 +1,16 @@
+( 
+
+input(valor),
+
+forward(valor),
+right(valor),
+forward(valor),
+left(valor),
+forward(valor),
+pu(),
+move(valor,valor),
+pd(),
+curve(valor,valor),
+home()
+
+)

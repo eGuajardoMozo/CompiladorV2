@@ -1,0 +1,23 @@
+func miFuncion( param1 , param2 , param3) ( f() , c() )
+
+forward() miFuncion(4+5, mivariable) c(2)
+
+while(5-2 <> 9) ( miFuncion(1,2) , forward(), showpos() )
+
+arr miARREGLO[miVariable]
+arr miArreglo2[miVariable] = ( miVariable, 4, 5 , 6+4 )
+
+i = 0
+while(i<10) (
+   f( miArreglo[i] * 10 ),
+   left(90),
+   i = i + 1
+)
+
+if(miArreglo[i] < 5) (
+  miArreglo[i] = miArreglo[i] * 2
+)
+else (
+  miArreglo[i] = 4,
+  forward(miArreglo[i])
+)

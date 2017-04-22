@@ -1,0 +1,11 @@
+{
+
+valor = 10,
+
+while(valor > 5) {
+    print("TRUE"),
+    input(valor),
+    forward(valor)
+}
+
+}
