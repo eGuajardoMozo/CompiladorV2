@@ -1,0 +1,233 @@
+/*
+	MAGU Scanner/Parser
+	Adrián Martínez A01280252
+	Estefanía Guajardo A00813202
+*/
+
+// Para permitir el uso de variables y que los métodos no sean estáticos por default
+options {
+	STATIC = false ;
+}
+
+PARSER_BEGIN(magu)
+
+class magu
+{
+
+	public static void main(String[] args) throws ParseException
+	{
+		try
+		{
+			magu scanner = new magu(System.in);
+			scanner.Programa();
+			System.out.println("OK!");
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("Error!");
+		}
+	}
+	
+}
+PARSER_END(magu)
+
+TOKEN:
+{
+		< TK_FORWARD : "forward" | "f" >		{}
+	|	< TK_LEFT : "left" | "l" >				{}
+	|	< TK_RIGHT : "right" | "r">				{}
+	|	< TK_PENCILUP : "pencilup" | "pu" >		{}
+	|	< TK_PENCILDOWN : "pencildown" | "pd" >	{}
+	|	< TK_MOVE : "move" | "m" >				{}
+	|	< TK_HOME : "home" | "h" >				{}
+	|	< TK_CURVE : "curve" | "cv" >			{}
+	|	< TK_INPUT : "input" | "in" >			{}
+	|	< TK_PRINT : "print" | "pr" >			{}
+	|	< TK_WHILE : "while" >					{}
+	|	< TK_IF : "if" >						{}
+	|	< TK_ELSE : "else" >					{}
+	|	< TK_ARR : "arr" >						{}
+	|	< TK_FUNC : "func" >					{}
+	|	< TK_EQ: "=" >							{}
+	|	< TK_NE: "<>" >							{}
+	|	< TK_EQT: "==" >						{}
+	|	< TK_LT: "<" >							{}
+	|	< TK_GT: ">" >							{}
+	|	< TK_LPAR: "(" >						{}
+	|	< TK_RPAR: ")" >						{}
+	|	< TK_LBRACKET: "[" >					{}
+	|	< TK_RBRACKET: "]" >					{}
+	|	< TK_LBRACE: "{" >						{}
+	|	< TK_RBRACE: "}" >						{}
+	|	< TK_COMMA: "," >						{}
+	|	< TK_PLUS: "+" >						{}
+	|	< TK_MINUS: "-" >						{}
+	|	< TK_MULT: "*" >						{}
+	|	< TK_DIV: "/" >							{}	
+	|	< TK_CTE_I : (["0"-"9"])+ >				{}
+	|	< TK_ID :  ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9"])* > {}
+	|   < TK_STRING : <QUOTE> (~["\r","\n","\"" ])+ <QUOTE> > {}
+	|	< #QUOTE : "\"" >
+}
+
+SKIP:
+{
+	" "	| "\r\n" | "\t"
+}
+
+void Programa() : {}
+{   
+    ( Asignacion() )* ( Definicion_Func() )* ( Arreglo() )* Secuencia()  <EOF>
+}
+
+void Func() : {}
+{
+    ( 
+    	  <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR>
+    	| <TK_LEFT> <TK_LPAR> Exp() <TK_RPAR>
+    	| <TK_RIGHT> <TK_LPAR>  Exp() <TK_RPAR>
+    	| <TK_INPUT> <TK_LPAR> <TK_ID> <TK_RPAR>
+    	| <TK_PRINT> <TK_LPAR> 
+    			( 
+    				LOOKAHEAD(2)
+    				<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
+    			|
+    				<TK_ID> 					
+    			|
+    				<TK_STRING>
+    			)
+
+    			( <TK_PLUS> 
+    				( 
+    					LOOKAHEAD(2)
+    			  		<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> 	
+    			  	|
+    					<TK_ID>
+    				|
+    					<TK_STRING>
+    				) 
+    			)*
+    			<TK_RPAR>
+
+    	| <TK_PENCILUP> <TK_LPAR> <TK_RPAR>
+    	| <TK_PENCILDOWN> <TK_LPAR> <TK_RPAR>
+    	| <TK_MOVE> <TK_LPAR> Exp() <TK_COMMA> Exp() <TK_RPAR>
+    	| <TK_CURVE> <TK_LPAR> Exp() <TK_COMMA> Exp() <TK_RPAR>
+    	| <TK_HOME> <TK_LPAR> <TK_RPAR>
+    )   
+}  
+
+void Funcion() : {} 
+{	
+    <TK_ID> <TK_LPAR> ( ( Exp() ) ( <TK_COMMA> Exp() )* )? <TK_RPAR>
+}
+
+void Exp() : {}
+{
+	Termino()
+	( 
+		 <TK_PLUS> Termino()
+		| 
+		<TK_MINUS> Termino()
+		)*
+}
+
+void Termino() : {}
+{
+	Factor()
+	( 
+		<TK_MULT> Factor()
+		| 
+		<TK_DIV> Factor()
+		)*
+}
+
+void Factor() : {}
+{
+	LOOKAHEAD(2)
+
+	//indice de arreglo
+	<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
+
+	|
+
+	// variable
+	<TK_ID>
+
+	|
+
+	//constante
+	<TK_CTE_I>
+}
+
+
+void Asignacion() : {}
+{
+	LOOKAHEAD(2) 
+	// variable
+	<TK_ID> <TK_EQ> Exp()
+	|
+	// indice de arreglo
+	<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> <TK_EQ> Exp()
+}
+
+
+void Bool() : {}
+{
+	Exp()
+	( 
+		<TK_LT> Exp()
+
+		|
+		
+		<TK_GT>	Exp()
+		
+		|
+		
+		<TK_NE> Exp()
+		|
+		
+		<TK_EQT> Exp()
+
+	)?
+}
+
+void Secuencia() : {}
+{
+	<TK_LBRACE> ( LOOKAHEAD(2) Funcion() | LOOKAHEAD(2) Func() | While() | Asignacion() | Condicion() )
+	( <TK_COMMA> ( LOOKAHEAD(2) Funcion() | LOOKAHEAD(2) Func() | While() | Asignacion() | Condicion() ) )*
+	<TK_RBRACE>
+}
+
+void While() : {}
+{
+	<TK_WHILE> <TK_LPAR> Bool() <TK_RPAR> Secuencia()	
+}
+
+void Definicion_Func() : {}
+{
+	<TK_FUNC> <TK_ID> 
+	<TK_LPAR>
+	( 
+		<TK_ID>
+		( 
+			<TK_COMMA> 
+			<TK_ID>			
+		)* 
+
+	)?
+	<TK_RPAR>
+
+	Secuencia()
+}
+
+void Condicion() : {}
+{
+	<TK_IF> <TK_LPAR> Bool() <TK_RPAR> Secuencia() (<TK_ELSE> Secuencia() )?
+}
+
+void Arreglo() : {}
+{
+	<TK_ARR> <TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> (<TK_EQ> <TK_LPAR> Exp() (<TK_COMMA> Exp() )* <TK_RPAR> )?
+}
