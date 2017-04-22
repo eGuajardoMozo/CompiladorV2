@@ -1,0 +1,21 @@
+{
+    A = B + C,    
+
+    while (B < A + C)
+    {
+	if (A > C) {
+		B = C - A,
+		if ( A > D -B ) {
+			A = D + B
+		}
+	}
+	else {
+		C = D + B,
+		while (D > B) {
+			D = A - C
+		}
+	}
+
+    },
+    C = B + A
+}

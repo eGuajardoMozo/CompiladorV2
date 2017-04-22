@@ -33,9 +33,12 @@ class magu
 
 	Stack pOperators = new Stack();
 	Stack pOperands = new Stack();
-	Queue<Cuadruplo> cuadruplos = new LinkedList<Cuadruplo>();
+	Stack pJumps = new Stack();
+
+	Vector cuadruplos = new Vector(1);
 
 	int currentTemporal  = 1;
+	int quadCounter = 0;
 	
 }
 PARSER_END(magu)
@@ -87,6 +90,10 @@ SKIP:
 void Programa() : {}
 {   
     ( Asignacion() )* ( Definicion_Func() )* ( Arreglo() )* Secuencia()  <EOF>
+
+    {
+    	MostrarCuadruplos();
+    }
 }
 
 void Func() : {Token o, op1, op2, r;}
@@ -95,8 +102,12 @@ void Func() : {Token o, op1, op2, r;}
     	  o = <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR> 
     	  {
     	  		Cuadruplo quad = new Cuadruplo();
+    	  		quadCounter++;
+
     	  		quad.operador = o.image;
     	  		Cuadruplo.displayCuadruplo(quad);
+
+    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
     	  }
     	| <TK_LEFT> <TK_LPAR> Exp() <TK_RPAR>
     	| <TK_RIGHT> <TK_LPAR>  Exp() <TK_RPAR>
@@ -219,11 +230,24 @@ void Factor() : {Token o;}
 }
 
 
-void Asignacion() : {}
+void Asignacion() : {String o, op1; Token r;}
 {
 	LOOKAHEAD(2) 
 	// variable
-	<TK_ID> <TK_EQ> Exp()
+	r = <TK_ID> <TK_EQ> Exp()
+	{
+		op1 = (String)pOperands.pop();
+
+		Cuadruplo quad = new Cuadruplo("=", op1, " ", r.image);
+		quadCounter++;
+
+		//System.out.println("quadCounter: " + quadCounter);
+
+		//Cuadruplo.displayCuadruplo(quad); 
+
+		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
+	}
 	|
 	// indice de arreglo
 	<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> <TK_EQ> Exp()
@@ -277,9 +301,36 @@ void Secuencia() : {}
 	<TK_RBRACE>
 }
 
-void While() : {}
+void While() : {String op1, r;}
 {
-	<TK_WHILE> <TK_LPAR> Bool() <TK_RPAR> Secuencia()	
+	<TK_WHILE>
+	{
+		pJumps.push("" + (quadCounter+1));
+	}
+
+
+	<TK_LPAR> Bool() <TK_RPAR>
+	{
+		op1 = (String)pOperands.pop();
+
+		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, " ", " ");
+		quadCounter++;
+		cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
+		pJumps.push("" + (quadCounter-1));
+	}
+
+	Secuencia()
+	{
+
+		String end = (String)pJumps.pop();
+		String retorno = (String)pJumps.pop();
+
+		Cuadruplo quadFalse = new Cuadruplo("Goto", " ", " ", retorno);
+		quadCounter++;
+		cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
+
+		Fill ( Integer.parseInt(end), quadCounter);
+	}
 }
 
 void Definicion_Func() : {}
@@ -299,9 +350,58 @@ void Definicion_Func() : {}
 	Secuencia()
 }
 
-void Condicion() : {}
+void Condicion() : {String op1, r;}
 {
-	<TK_IF> <TK_LPAR> Bool() <TK_RPAR> Secuencia() (<TK_ELSE> Secuencia() )?
+	<TK_IF> <TK_LPAR> Bool() <TK_RPAR>
+
+	{
+		op1 = (String)pOperands.pop();
+
+		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, " ", " ");
+		quadCounter++;
+
+		//System.out.println("quadCounter: " + quadCounter);
+
+		//Cuadruplo.displayCuadruplo(quadTrue);
+
+		cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
+
+		pJumps.push("" + (quadCounter-1));
+	}
+	Secuencia()
+
+	(<TK_ELSE> 
+	{
+		Cuadruplo quadFalse = new Cuadruplo("Goto", " ", " ", " ");
+		quadCounter++;
+
+		//System.out.println("quadCounter: " + quadCounter);
+
+
+		//Cuadruplo.displayCuadruplo(quadFalse);
+
+		cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
+
+		String falso = (String)pJumps.pop();
+		pJumps.push("" + (quadCounter-1));
+
+		//System.out.println("falso: " + falso);
+
+
+		Fill ( Integer.parseInt(falso), quadCounter);
+
+	}
+
+		Secuencia() )?
+
+	// 2, aquí termina el if. A dónde brinca?
+	{
+		String end = (String)pJumps.pop();
+
+		//System.out.println("end: " + end);
+
+		Fill ( Integer.parseInt(end), quadCounter);
+	}
 }
 
 void Arreglo() : {}
@@ -339,10 +439,13 @@ void PendingOperator(String operator1, String operator2) : {String o, op1,  op2,
 
 				// Crear un cuadruplo y meterlos
 				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+				quadCounter++;
 
 		    	pOperands.push(r);
 
-		    	Cuadruplo.displayCuadruplo(quad);
+		    	//Cuadruplo.displayCuadruplo(quad);
+
+		    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 		    }
 		}
 	}
@@ -371,11 +474,40 @@ void PendingOperatorBool() : {String o, op1,  op2, r;}
 
 				// Crear un cuadruplo y meterlos
 				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+				quadCounter++;
 
 		    	pOperands.push(r);
 
-		    	Cuadruplo.displayCuadruplo(quad);
+		    	//Cuadruplo.displayCuadruplo(quad);
+
+		    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 		    }
 		}
+	}
+}
+
+
+
+void MostrarCuadruplos() : {}
+{
+	{
+		for (int i=0; i < cuadruplos.size(); i++) {
+			System.out.print(i+1 + ": \t");
+			Cuadruplo.displayCuadruplo((Cuadruplo)cuadruplos.get(i));
+			
+		}
+	}
+}
+
+void Fill(int numQuad, int jump) : {}
+{
+	{
+		Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
+
+		quad.resultado = "" + (jump+1);
+
+		//System.out.print("Se acaba de hacer un fill: ");
+		//Cuadruplo.displayCuadruplo(quad);
+
 	}
 }

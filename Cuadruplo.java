@@ -23,7 +23,7 @@ public class Cuadruplo {
 	}
 
 	public static void displayCuadruplo(Cuadruplo cuadruplo) {
-	System.out.println( cuadruplo.operador + "\t" + cuadruplo.oper1 + "\t" + cuadruplo.oper2 + "\t" + cuadruplo.resultado );
+	System.out.println( cuadruplo.operador + " \t" + cuadruplo.oper1 + " \t" + cuadruplo.oper2 + " \t" + cuadruplo.resultado );
 	}
 
 }

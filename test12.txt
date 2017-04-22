@@ -1,6 +1,18 @@
 {
-   if ( 2 < 3 + 5) {
-   a = 1 * 2 + 4 / 2
+   if ( A + B > D) {
+     if (A < B) {
+         A = 0,
+         B = B + D
+     }
+     else {
+         C = A + B
+     }
    }
+   else {
+      A = B + C
+   },
+
+   D = B + A * C
+
 
 }

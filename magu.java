@@ -21,9 +21,12 @@ class magu implements maguConstants {
 
         Stack pOperators = new Stack();
         Stack pOperands = new Stack();
-        Queue<Cuadruplo> cuadruplos = new LinkedList<Cuadruplo>();
+        Stack pJumps = new Stack();
+
+        Vector cuadruplos = new Vector(1);
 
         int currentTemporal  = 1;
+        int quadCounter = 0;
 
   final public void Programa() throws ParseException {
     label_1:
@@ -67,6 +70,7 @@ class magu implements maguConstants {
     }
     Secuencia();
     jj_consume_token(0);
+MostrarCuadruplos();
   }
 
   final public void Func() throws ParseException {Token o, op1, op2, r;
@@ -77,8 +81,13 @@ class magu implements maguConstants {
       Exp();
       jj_consume_token(TK_RPAR);
 Cuadruplo quad = new Cuadruplo();
+                        quadCounter++;
+
                         quad.operador = o.image;
                         Cuadruplo.displayCuadruplo(quad);
+
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_LEFT:{
@@ -343,11 +352,23 @@ pOperands.push(o.image); // meter la constante a la stack de operandos
     }
   }
 
-  final public void Asignacion() throws ParseException {
+  final public void Asignacion() throws ParseException {String o, op1; Token r;
     if (jj_2_4(2)) {
-      jj_consume_token(TK_ID);
+      // variable
+              r = jj_consume_token(TK_ID);
       jj_consume_token(TK_EQ);
       Exp();
+op1 = (String)pOperands.pop();
+
+                Cuadruplo quad = new Cuadruplo("=", op1, " ", r.image);
+                quadCounter++;
+
+                //System.out.println("quadCounter: " + quadCounter);
+
+                //Cuadruplo.displayCuadruplo(quad); 
+
+                cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_ID:{
@@ -486,12 +507,27 @@ pOperators.push(o.image); // meter el == a la stack de operandos
     jj_consume_token(TK_RBRACE);
   }
 
-  final public void While() throws ParseException {
+  final public void While() throws ParseException {String op1, r;
     jj_consume_token(TK_WHILE);
+pJumps.push("" + (quadCounter+1));
     jj_consume_token(TK_LPAR);
     Bool();
     jj_consume_token(TK_RPAR);
+op1 = (String)pOperands.pop();
+
+                Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, " ", " ");
+                quadCounter++;
+                cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
+                pJumps.push("" + (quadCounter-1));
     Secuencia();
+String end = (String)pJumps.pop();
+                String retorno = (String)pJumps.pop();
+
+                Cuadruplo quadFalse = new Cuadruplo("Goto", " ", " ", retorno);
+                quadCounter++;
+                cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
+
+                Fill ( Integer.parseInt(end), quadCounter);
   }
 
   final public void Definicion_Func() throws ParseException {
@@ -525,15 +561,44 @@ pOperators.push(o.image); // meter el == a la stack de operandos
     Secuencia();
   }
 
-  final public void Condicion() throws ParseException {
+  final public void Condicion() throws ParseException {String op1, r;
     jj_consume_token(TK_IF);
     jj_consume_token(TK_LPAR);
     Bool();
     jj_consume_token(TK_RPAR);
+op1 = (String)pOperands.pop();
+
+                Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, " ", " ");
+                quadCounter++;
+
+                //System.out.println("quadCounter: " + quadCounter);
+
+                //Cuadruplo.displayCuadruplo(quadTrue);
+
+                cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
+
+                pJumps.push("" + (quadCounter-1));
     Secuencia();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_ELSE:{
       jj_consume_token(TK_ELSE);
+Cuadruplo quadFalse = new Cuadruplo("Goto", " ", " ", " ");
+                quadCounter++;
+
+                //System.out.println("quadCounter: " + quadCounter);
+
+
+                //Cuadruplo.displayCuadruplo(quadFalse);
+
+                cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
+
+                String falso = (String)pJumps.pop();
+                pJumps.push("" + (quadCounter-1));
+
+                //System.out.println("falso: " + falso);
+
+
+                Fill ( Integer.parseInt(falso), quadCounter);
       Secuencia();
       break;
       }
@@ -541,6 +606,11 @@ pOperators.push(o.image); // meter el == a la stack de operandos
       jj_la1[22] = jj_gen;
       ;
     }
+String end = (String)pJumps.pop();
+
+                //System.out.println("end: " + end);
+
+                Fill ( Integer.parseInt(end), quadCounter);
   }
 
   final public void Arreglo() throws ParseException {
@@ -600,10 +670,13 @@ pOperators.push(o.image); // meter el == a la stack de operandos
 
                                 // Crear un cuadruplo y meterlos
                                 Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+                                quadCounter++;
 
                         pOperands.push(r);
 
-                        Cuadruplo.displayCuadruplo(quad);
+                        //Cuadruplo.displayCuadruplo(quad);
+
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
                     }
                 }
   }
@@ -629,12 +702,33 @@ pOperators.push(o.image); // meter el == a la stack de operandos
 
                                 // Crear un cuadruplo y meterlos
                                 Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+                                quadCounter++;
 
                         pOperands.push(r);
 
-                        Cuadruplo.displayCuadruplo(quad);
+                        //Cuadruplo.displayCuadruplo(quad);
+
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
                     }
                 }
+  }
+
+  final public void MostrarCuadruplos() throws ParseException {
+for (int i=0; i < cuadruplos.size(); i++) {
+                        System.out.print(i+1 + ": \u005ct");
+                        Cuadruplo.displayCuadruplo((Cuadruplo)cuadruplos.get(i));
+
+                }
+  }
+
+  final public void Fill(int numQuad, int jump) throws ParseException {
+Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
+
+                quad.resultado = "" + (jump+1);
+
+                //System.out.print("Se acaba de hacer un fill: ");
+                //Cuadruplo.displayCuadruplo(quad);
+
   }
 
   private boolean jj_2_1(int xla)
@@ -701,57 +795,15 @@ pOperators.push(o.image); // meter el == a la stack de operandos
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3R_21()
+  private boolean jj_3_7()
  {
-    if (jj_scan_token(TK_CURVE)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
+    if (jj_3R_11()) return true;
     return false;
   }
 
-  private boolean jj_3R_20()
+  private boolean jj_3_5()
  {
-    if (jj_scan_token(TK_MOVE)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3_4()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_19()
- {
-    if (jj_scan_token(TK_PENCILDOWN)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18()
- {
-    if (jj_scan_token(TK_PENCILUP)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_6()
- {
-    if (jj_3R_12()) return true;
+    if (jj_3R_11()) return true;
     return false;
   }
 
@@ -769,12 +821,6 @@ pOperators.push(o.image); // meter el == a la stack de operandos
     return false;
   }
 
-  private boolean jj_3_3()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    return false;
-  }
-
   private boolean jj_3R_15()
  {
     if (jj_scan_token(TK_RIGHT)) return true;
@@ -782,9 +828,9 @@ pOperators.push(o.image); // meter el == a la stack de operandos
     return false;
   }
 
-  private boolean jj_3_7()
+  private boolean jj_3_3()
  {
-    if (jj_3R_11()) return true;
+    if (jj_scan_token(TK_ID)) return true;
     return false;
   }
 
@@ -802,9 +848,9 @@ pOperators.push(o.image); // meter el == a la stack de operandos
     return false;
   }
 
-  private boolean jj_3_5()
+  private boolean jj_3_8()
  {
-    if (jj_3R_11()) return true;
+    if (jj_3R_12()) return true;
     return false;
   }
 
@@ -812,6 +858,12 @@ pOperators.push(o.image); // meter el == a la stack de operandos
  {
     if (jj_scan_token(TK_FORWARD)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_6()
+ {
+    if (jj_3R_12()) return true;
     return false;
   }
 
@@ -860,6 +912,48 @@ pOperators.push(o.image); // meter el == a la stack de operandos
   private boolean jj_3R_11()
  {
     if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_21()
+ {
+    if (jj_scan_token(TK_CURVE)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_20()
+ {
+    if (jj_scan_token(TK_MOVE)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19()
+ {
+    if (jj_scan_token(TK_PENCILDOWN)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18()
+ {
+    if (jj_scan_token(TK_PENCILUP)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
