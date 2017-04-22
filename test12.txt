@@ -1,6 +1,7 @@
 {
    forward(6),
 
-   a = a + a
+   b = b - 2,
+   a = a * a
 
 }

@@ -137,60 +137,16 @@ void Funcion() : {}
 void Exp() : {Token o, op1, op2;}
 {
 	Termino()
-
-	( 
-		o = <TK_PLUS> 
-		{
-			pOperators.push(o); // meter el + a la stack de operadores
-
-			System.out.println("Entra aqui " + pOperators.peek());
-		}
-
-		Termino()
-
-		| 
-
-		o = <TK_MINUS> 
-		{
-			pOperators.push(o); // meter el - a la stack de operadores
-		}
-
-		Termino()
-
-		)*
-}
-
-void Termino() : {Token o, op1, op2;}
-{
-	Factor()
-	( 
-		o = <TK_MULT> 
-		{
-			pOperators.push(o); // meter el * a la stack de operadores
-		}
-
-		Factor()
-
-		| 
-
-		o = <TK_DIV>
-		{
-			pOperators.push(o); // meter el / a la stack de operadores
-		}
-
-		Factor()
-
-		)*
-
+	
 	{
 		if( !pOperators.empty()) {
 
-			if ( ((Token)pOperators.pop()).image == "+" || ((Token)pOperators.pop()).image == "-"  ) {
-
+			if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
+				
 				op2 = (Token)pOperands.pop();
 				op1 = (Token)pOperands.pop();
 				o = (Token)pOperators.pop();
-
+				
 				Cuadruplo quad = new Cuadruplo();
 		    	quad.operador = o;
 		    	quad.oper1 = op1;
@@ -201,6 +157,151 @@ void Termino() : {Token o, op1, op2;}
 		    }
 		}
 	}
+
+	( 
+		o = <TK_PLUS> 
+		{
+			pOperators.push(o); // meter el + a la stack de operadores
+
+			System.out.println("Entra aqui " + pOperators.peek());
+		}
+
+		Termino()
+		
+		{
+			if( !pOperators.empty()) {
+
+				if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
+					
+					op2 = (Token)pOperands.pop();
+					op1 = (Token)pOperands.pop();
+					o = (Token)pOperators.pop();
+				
+					Cuadruplo quad = new Cuadruplo();
+					quad.operador = o;
+					quad.oper1 = op1;
+					quad.oper2 = op2;
+					Cuadruplo.displayCuadruplo(quad);
+
+					System.out.println("ENTRA AQUI");
+				}
+			}
+		}
+
+		| 
+
+		o = <TK_MINUS> 
+		{
+			pOperators.push(o); // meter el - a la stack de operadores
+		}
+
+		Termino()
+		
+		{
+			if( !pOperators.empty()) {
+
+				if ( ((Token)pOperators.peek()).image.equals("+") || ((Token)pOperators.peek()).image.equals("-")  ) {
+				
+					op2 = (Token)pOperands.pop();
+					op1 = (Token)pOperands.pop();
+					o = (Token)pOperators.pop();
+				
+					Cuadruplo quad = new Cuadruplo();
+					quad.operador = o;
+					quad.oper1 = op1;
+					quad.oper2 = op2;
+					Cuadruplo.displayCuadruplo(quad);
+
+					System.out.println("ENTRA AQUI");
+				}
+			}
+		}
+
+	)*
+		
+}
+
+void Termino() : {Token o, op1, op2;}
+{
+	Factor()
+	
+	{
+		if( !pOperators.empty()) {
+
+			if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
+				
+				op2 = (Token)pOperands.pop();
+				op1 = (Token)pOperands.pop();
+				o = (Token)pOperators.pop();
+				
+				Cuadruplo quad = new Cuadruplo();
+		    	quad.operador = o;
+		    	quad.oper1 = op1;
+		    	quad.oper2 = op2;
+		    	Cuadruplo.displayCuadruplo(quad);
+
+		    	System.out.println("ENTRA AQUI");
+		    }
+		}
+	}
+	
+	( 
+		o = <TK_MULT> 
+		{
+			pOperators.push(o); // meter el * a la stack de operadores
+		}
+
+		Factor()
+		{
+			if( !pOperators.empty()) {
+
+				if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
+				
+					op2 = (Token)pOperands.pop();
+					op1 = (Token)pOperands.pop();
+					o = (Token)pOperators.pop();
+				
+					Cuadruplo quad = new Cuadruplo();
+					quad.operador = o;
+					quad.oper1 = op1;
+					quad.oper2 = op2;
+					Cuadruplo.displayCuadruplo(quad);
+
+					System.out.println("ENTRA AQUI");
+				}
+			}
+		}
+
+		| 
+
+		o = <TK_DIV>
+		{
+			pOperators.push(o); // meter el / a la stack de operadores
+		}
+
+		Factor()
+		{
+			if( !pOperators.empty()) {
+
+				if ( ((Token)pOperators.peek()).image.equals("*") || ((Token)pOperators.peek()).image.equals("/")  ) {
+				
+					op2 = (Token)pOperands.pop();
+					op1 = (Token)pOperands.pop();
+					o = (Token)pOperators.pop();
+				
+					Cuadruplo quad = new Cuadruplo();
+					quad.operador = o;
+					quad.oper1 = op1;
+					quad.oper2 = op2;
+					Cuadruplo.displayCuadruplo(quad);
+
+					System.out.println("ENTRA AQUI");
+				}
+			}
+		}
+
+	)*
+
 }
 
 void Factor() : {Token o;}
