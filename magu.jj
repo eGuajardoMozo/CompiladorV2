@@ -34,6 +34,8 @@ class magu
 	Stack pOperators = new Stack();
 	Stack pOperands = new Stack();
 	Queue<Cuadruplo> cuadruplos = new LinkedList<Cuadruplo>();
+
+	int currentTemporal  = 1;
 	
 }
 PARSER_END(magu)
@@ -93,7 +95,7 @@ void Func() : {Token o, op1, op2, r;}
     	  o = <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR> 
     	  {
     	  		Cuadruplo quad = new Cuadruplo();
-    	  		quad.operador = o;
+    	  		quad.operador = o.image;
     	  		Cuadruplo.displayCuadruplo(quad);
     	  }
     	| <TK_LEFT> <TK_LPAR> Exp() <TK_RPAR>
@@ -137,52 +139,55 @@ void Funcion() : {}
 void Exp() : {Token o, op1, op2;}
 {
 	Termino()
+	PendingOperator("+","-")
 
+	
 	( 
 		o = <TK_PLUS> 
 		{
-			pOperators.push(o); // meter el + a la stack de operadores
-
-			System.out.println("Entra aqui " + pOperators.peek());
+			pOperators.push(o.image); // meter el + a la stack de operadores
 		}
 
 		Termino()
+		PendingOperator("+","-")
 
 		| 
 
 		o = <TK_MINUS> 
 		{
-			pOperators.push(o); // meter el - a la stack de operadores
+			pOperators.push(o.image); // meter el - a la stack de operadores
 		}
 
 		Termino()
+		PendingOperator("+","-")
+
 
 	)*
 		
 }
 
-void Termino() : {Token o, op1, op2;}
+void Termino() : {Token o;}
 {
 	Factor()
 	
 	( 
 		o = <TK_MULT> 
 		{
-			pOperators.push(o); // meter el * a la stack de operadores
+			pOperators.push(o.image); // meter el * a la stack de operadores
 		}
 
 		Factor()
-		PendingOperator(o,"+","-")
+		PendingOperator("*","/")
 
 		| 
 
 		o = <TK_DIV>
 		{
-			pOperators.push(o); // meter el / a la stack de operadores
+			pOperators.push(o.image); // meter el / a la stack de operadores
 		}
 
 		Factor()
-		PendingOperator(o,"+","-")
+		PendingOperator("*","/")
 
 	)*
 
@@ -200,22 +205,17 @@ void Factor() : {Token o;}
 	// variable
 	o = <TK_ID>
 	{
-		pOperands.push(o); // meter el id a la stack de operandos
-
-		System.out.println("Entra aqui " + pOperands.peek() );	
+		pOperands.push(o.image); // meter el id a la stack de operandos
 	}
-	PendingOperator(o,"*","/")
 
 	|
 
 	//constante
 	o = <TK_CTE_I>
 	{
-		pOperands.push(o); // meter la constante a la stack de operandos
-
-		System.out.println("Entra aqui " + pOperands.peek());
+		pOperands.push(o.image); // meter la constante a la stack de operandos
 	}
-	PendingOperator(o,"*","/")
+	
 }
 
 
@@ -230,22 +230,42 @@ void Asignacion() : {}
 }
 
 
-void Bool() : {}
+void Bool() : {Token o;}
 {
 	Exp()
 	( 
-		<TK_LT> Exp()
+		o = <TK_LT> Exp()
+		{
+			pOperators.push(o.image); // meter el < a la stack de operandos
+		}
+		PendingOperatorBool()
 
 		|
 		
-		<TK_GT>	Exp()
-		
+		o = <TK_GT>	Exp()
+		{
+			pOperators.push(o.image); // meter el > a la stack de operandos
+		}
+		PendingOperatorBool()
+
+
 		|
 		
-		<TK_NE> Exp()
+		o = <TK_NE> Exp()
+		{
+			pOperators.push(o.image); // meter el <> a la stack de operandos
+		}
+		PendingOperatorBool()
+
+
 		|
 		
-		<TK_EQT> Exp()
+		o = <TK_EQT> Exp()
+		{
+			pOperators.push(o.image); // meter el == a la stack de operandos
+		}
+		PendingOperatorBool()
+
 
 	)?
 }
@@ -298,25 +318,61 @@ void Arreglo() : {}
 
 
 // Punto 4 y 5, si hay operadores pendientes...
-void PendingOperator(Token o, String operator1, String operator2) : {Token op1,  op2;}
+void PendingOperator(String operator1, String operator2) : {String o, op1,  op2, r;}
 {
 	{
 		// Si la pila no esta vacía
 		if( !pOperators.empty()) {
 
 			// Y el tope de la pila es alguno de los operadores mandados. +- o */
-			if ( ((Token)pOperators.peek()).image == operator1 || ((Token)pOperators.peek()).image == operator2  ) {
+			if ( pOperators.peek() == operator1 || pOperators.peek() == operator2  ) {
 
 				// Sacar los operandos y el operador de las pilas
-				op2 = (Token)pOperands.pop();
-				op1 = (Token)pOperands.pop();
-				o = (Token)pOperators.pop();
+				op2 = (String)pOperands.pop();
+				op1 = (String)pOperands.pop();
+				o = (String)pOperators.pop();
+				r = "t" + currentTemporal;
+
+				currentTemporal++;
+
+				//System.out.println( r );
 
 				// Crear un cuadruplo y meterlos
-				Cuadruplo quad = new Cuadruplo();
-		    	quad.operador = o;
-		    	quad.oper1 = op1;
-		    	quad.oper2 = op2;
+				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+
+		    	pOperands.push(r);
+
+		    	Cuadruplo.displayCuadruplo(quad);
+		    }
+		}
+	}
+}
+
+// Punto 9, si hay operadores booleanos pendientes...
+void PendingOperatorBool() : {String o, op1,  op2, r;}
+{
+	{
+		// Si la pila no esta vacía
+		if( !pOperators.empty()) {
+
+			// Y el tope de la pila es > < <> o ==
+			if ( pOperators.peek() == ">" || pOperators.peek() == "<" || 
+				pOperators.peek() == "<>" || pOperators.peek() == "=="  ) {
+
+				// Sacar los operandos y el operador de las pilas
+				op2 = (String)pOperands.pop();
+				op1 = (String)pOperands.pop();
+				o = (String)pOperators.pop();
+				r = "t" + currentTemporal;
+
+				currentTemporal++;
+
+				//System.out.println( r );
+
+				// Crear un cuadruplo y meterlos
+				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+
+		    	pOperands.push(r);
 
 		    	Cuadruplo.displayCuadruplo(quad);
 		    }

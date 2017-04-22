@@ -23,6 +23,8 @@ class magu implements maguConstants {
         Stack pOperands = new Stack();
         Queue<Cuadruplo> cuadruplos = new LinkedList<Cuadruplo>();
 
+        int currentTemporal  = 1;
+
   final public void Programa() throws ParseException {
     label_1:
     while (true) {
@@ -75,7 +77,7 @@ class magu implements maguConstants {
       Exp();
       jj_consume_token(TK_RPAR);
 Cuadruplo quad = new Cuadruplo();
-                        quad.operador = o;
+                        quad.operador = o.image;
                         Cuadruplo.displayCuadruplo(quad);
       break;
       }
@@ -236,6 +238,7 @@ Cuadruplo quad = new Cuadruplo();
 
   final public void Exp() throws ParseException {Token o, op1, op2;
     Termino();
+    PendingOperator("+","-");
     label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -251,17 +254,18 @@ Cuadruplo quad = new Cuadruplo();
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_PLUS:{
         o = jj_consume_token(TK_PLUS);
-pOperators.push(o); // meter el + a la stack de operadores
+pOperators.push(o.image); // meter el + a la stack de operadores
 
-                        System.out.println("Entra aqui " + pOperators.peek());
         Termino();
+        PendingOperator("+","-");
         break;
         }
       case TK_MINUS:{
         o = jj_consume_token(TK_MINUS);
-pOperators.push(o); // meter el - a la stack de operadores
+pOperators.push(o.image); // meter el - a la stack de operadores
 
         Termino();
+        PendingOperator("+","-");
         break;
         }
       default:
@@ -272,7 +276,7 @@ pOperators.push(o); // meter el - a la stack de operadores
     }
   }
 
-  final public void Termino() throws ParseException {Token o, op1, op2;
+  final public void Termino() throws ParseException {Token o;
     Factor();
     label_7:
     while (true) {
@@ -289,18 +293,18 @@ pOperators.push(o); // meter el - a la stack de operadores
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_MULT:{
         o = jj_consume_token(TK_MULT);
-pOperators.push(o); // meter el * a la stack de operadores
+pOperators.push(o.image); // meter el * a la stack de operadores
 
         Factor();
-        PendingOperator(o,"+","-");
+        PendingOperator("*","/");
         break;
         }
       case TK_DIV:{
         o = jj_consume_token(TK_DIV);
-pOperators.push(o); // meter el / a la stack de operadores
+pOperators.push(o.image); // meter el / a la stack de operadores
 
         Factor();
-        PendingOperator(o,"+","-");
+        PendingOperator("*","/");
         break;
         }
       default:
@@ -320,19 +324,15 @@ pOperators.push(o); // meter el / a la stack de operadores
       
               // variable
               o = jj_consume_token(TK_ID);
-pOperands.push(o); // meter el id a la stack de operandos
+pOperands.push(o.image); // meter el id a la stack de operandos
 
-                System.out.println("Entra aqui " + pOperands.peek() );
-      PendingOperator(o,"*","/");
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_CTE_I:{
         //constante
                 o = jj_consume_token(TK_CTE_I);
-pOperands.push(o); // meter la constante a la stack de operandos
+pOperands.push(o.image); // meter la constante a la stack de operandos
 
-                System.out.println("Entra aqui " + pOperands.peek());
-        PendingOperator(o,"*","/");
         break;
         }
       default:
@@ -367,7 +367,7 @@ pOperands.push(o); // meter la constante a la stack de operandos
     }
   }
 
-  final public void Bool() throws ParseException {
+  final public void Bool() throws ParseException {Token o;
     Exp();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_NE:
@@ -376,23 +376,35 @@ pOperands.push(o); // meter la constante a la stack de operandos
     case TK_GT:{
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_LT:{
-        jj_consume_token(TK_LT);
+        o = jj_consume_token(TK_LT);
         Exp();
+pOperators.push(o.image); // meter el < a la stack de operandos
+
+        PendingOperatorBool();
         break;
         }
       case TK_GT:{
-        jj_consume_token(TK_GT);
+        o = jj_consume_token(TK_GT);
         Exp();
+pOperators.push(o.image); // meter el > a la stack de operandos
+
+        PendingOperatorBool();
         break;
         }
       case TK_NE:{
-        jj_consume_token(TK_NE);
+        o = jj_consume_token(TK_NE);
         Exp();
+pOperators.push(o.image); // meter el <> a la stack de operandos
+
+        PendingOperatorBool();
         break;
         }
       case TK_EQT:{
-        jj_consume_token(TK_EQT);
+        o = jj_consume_token(TK_EQT);
         Exp();
+pOperators.push(o.image); // meter el == a la stack de operandos
+
+        PendingOperatorBool();
         break;
         }
       default:
@@ -569,23 +581,56 @@ pOperands.push(o); // meter la constante a la stack de operandos
 
 
 // Punto 4 y 5, si hay operadores pendientes...
-  final public void PendingOperator(Token o, String operator1, String operator2) throws ParseException {Token op1,  op2;
+  final public void PendingOperator(String operator1, String operator2) throws ParseException {String o, op1,  op2, r;
 // Si la pila no esta vacía
                 if( !pOperators.empty()) {
 
                         // Y el tope de la pila es alguno de los operadores mandados. +- o */
-                        if ( ((Token)pOperators.peek()).image == operator1 || ((Token)pOperators.peek()).image == operator2  ) {
+                        if ( pOperators.peek() == operator1 || pOperators.peek() == operator2  ) {
 
                                 // Sacar los operandos y el operador de las pilas
-                                op2 = (Token)pOperands.pop();
-                                op1 = (Token)pOperands.pop();
-                                o = (Token)pOperators.pop();
+                                op2 = (String)pOperands.pop();
+                                op1 = (String)pOperands.pop();
+                                o = (String)pOperators.pop();
+                                r = "t" + currentTemporal;
+
+                                currentTemporal++;
+
+                                //System.out.println( r );
 
                                 // Crear un cuadruplo y meterlos
-                                Cuadruplo quad = new Cuadruplo();
-                        quad.operador = o;
-                        quad.oper1 = op1;
-                        quad.oper2 = op2;
+                                Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+
+                        pOperands.push(r);
+
+                        Cuadruplo.displayCuadruplo(quad);
+                    }
+                }
+  }
+
+// Punto 9, si hay operadores booleanos pendientes...
+  final public void PendingOperatorBool() throws ParseException {String o, op1,  op2, r;
+// Si la pila no esta vacía
+                if( !pOperators.empty()) {
+
+                        // Y el tope de la pila es > < <> o ==
+                        if ( pOperators.peek() == ">" || pOperators.peek() == "<" ||
+                                pOperators.peek() == "<>" || pOperators.peek() == "=="  ) {
+
+                                // Sacar los operandos y el operador de las pilas
+                                op2 = (String)pOperands.pop();
+                                op1 = (String)pOperands.pop();
+                                o = (String)pOperators.pop();
+                                r = "t" + currentTemporal;
+
+                                currentTemporal++;
+
+                                //System.out.println( r );
+
+                                // Crear un cuadruplo y meterlos
+                                Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
+
+                        pOperands.push(r);
 
                         Cuadruplo.displayCuadruplo(quad);
                     }
@@ -656,50 +701,17 @@ pOperands.push(o); // meter la constante a la stack de operandos
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3R_23()
- {
-    if (jj_scan_token(TK_HOME)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_12()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_4()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
-    return false;
-  }
-
-  private boolean jj_3_7()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_22()
+  private boolean jj_3R_21()
  {
     if (jj_scan_token(TK_CURVE)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_21()
+  private boolean jj_3R_20()
  {
     if (jj_scan_token(TK_MOVE)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_5()
- {
-    if (jj_3R_12()) return true;
     return false;
   }
 
@@ -710,59 +722,73 @@ pOperands.push(o); // meter la constante a la stack de operandos
     return false;
   }
 
-  private boolean jj_3R_20()
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19()
  {
     if (jj_scan_token(TK_PENCILDOWN)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_19()
+  private boolean jj_3_8()
+ {
+    if (jj_3R_12()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18()
  {
     if (jj_scan_token(TK_PENCILUP)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_11()
- {
-    return false;
-  }
-
-  private boolean jj_3_8()
- {
-    if (jj_3R_13()) return true;
-    return false;
-  }
-
   private boolean jj_3_6()
  {
-    if (jj_3R_13()) return true;
+    if (jj_3R_12()) return true;
     return false;
   }
 
-  private boolean jj_3R_18()
+  private boolean jj_3R_17()
  {
     if (jj_scan_token(TK_PRINT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_17()
+  private boolean jj_3R_16()
  {
     if (jj_scan_token(TK_INPUT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_16()
+  private boolean jj_3_3()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_15()
  {
     if (jj_scan_token(TK_RIGHT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_15()
+  private boolean jj_3_7()
+ {
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_14()
  {
     if (jj_scan_token(TK_LEFT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
@@ -776,24 +802,25 @@ pOperands.push(o); // meter la constante a la stack de operandos
     return false;
   }
 
-  private boolean jj_3_3()
+  private boolean jj_3_5()
  {
-    if (jj_scan_token(TK_ID)) return true;
     if (jj_3R_11()) return true;
     return false;
   }
 
-  private boolean jj_3R_14()
+  private boolean jj_3R_13()
  {
     if (jj_scan_token(TK_FORWARD)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
-  private boolean jj_3R_13()
+  private boolean jj_3R_12()
  {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_13()) {
+    jj_scanpos = xsp;
     if (jj_3R_14()) {
     jj_scanpos = xsp;
     if (jj_3R_15()) {
@@ -810,9 +837,7 @@ pOperands.push(o); // meter la constante a la stack de operandos
     jj_scanpos = xsp;
     if (jj_3R_21()) {
     jj_scanpos = xsp;
-    if (jj_3R_22()) {
-    jj_scanpos = xsp;
-    if (jj_3R_23()) return true;
+    if (jj_3R_22()) return true;
     }
     }
     }
@@ -822,6 +847,20 @@ pOperands.push(o); // meter la constante a la stack de operandos
     }
     }
     }
+    return false;
+  }
+
+  private boolean jj_3R_22()
+ {
+    if (jj_scan_token(TK_HOME)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_11()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
