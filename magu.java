@@ -72,7 +72,8 @@ class magu implements maguConstants {
     jj_consume_token(0);
 Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
         cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
-        MostrarCuadruplos();
+                quadCounter++;
+        MaquinaVirtual.MostrarCuadruplos(cuadruplos, quadCounter);
   }
 
   final public void Func() throws ParseException {String op1, op2; Token id;
@@ -907,16 +908,16 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
+  private boolean jj_3_6()
+ {
+    if (jj_3R_12()) return true;
+    return false;
+  }
+
   private boolean jj_3R_15()
  {
     if (jj_scan_token(TK_RIGHT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_6()
- {
-    if (jj_3R_12()) return true;
     return false;
   }
 
@@ -962,6 +963,13 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
+    return false;
+  }
+
   private boolean jj_3R_11()
  {
     if (jj_scan_token(TK_ID)) return true;
@@ -969,10 +977,9 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3_4()
+  private boolean jj_3_7()
  {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
+    if (jj_3R_11()) return true;
     return false;
   }
 
@@ -1008,12 +1015,6 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     }
     }
     }
-    return false;
-  }
-
-  private boolean jj_3_7()
- {
-    if (jj_3R_11()) return true;
     return false;
   }
 
