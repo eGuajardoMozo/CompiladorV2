@@ -1,0 +1,16 @@
+{
+   if ( A + B > D) {
+      forward(60),
+      left(35),
+      input(F),
+      pencilup(),
+      pencildown(),
+      move( 5 * 6,  7 + 2),
+      curve( A,  7 + 2),
+      home()
+   }
+   else {
+      A = B + C
+   }
+
+}

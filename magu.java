@@ -70,22 +70,22 @@ class magu implements maguConstants {
     }
     Secuencia();
     jj_consume_token(0);
-MostrarCuadruplos();
+Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
+        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+        MostrarCuadruplos();
   }
 
-  final public void Func() throws ParseException {Token o, op1, op2, r;
+  final public void Func() throws ParseException {String op1, op2; Token id;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_FORWARD:{
-      o = jj_consume_token(TK_FORWARD);
+      jj_consume_token(TK_FORWARD);
       jj_consume_token(TK_LPAR);
       Exp();
       jj_consume_token(TK_RPAR);
-Cuadruplo quad = new Cuadruplo();
+op1 = (String)pOperands.pop();
+
+                        Cuadruplo quad = new Cuadruplo("f",op1,"","");
                         quadCounter++;
-
-                        quad.operador = o.image;
-                        Cuadruplo.displayCuadruplo(quad);
-
                         cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 
       break;
@@ -95,6 +95,12 @@ Cuadruplo quad = new Cuadruplo();
       jj_consume_token(TK_LPAR);
       Exp();
       jj_consume_token(TK_RPAR);
+op1 = (String)pOperands.pop();
+
+                        Cuadruplo quad = new Cuadruplo("l",op1,"","");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_RIGHT:{
@@ -102,13 +108,25 @@ Cuadruplo quad = new Cuadruplo();
       jj_consume_token(TK_LPAR);
       Exp();
       jj_consume_token(TK_RPAR);
+op1 = (String)pOperands.pop();
+
+                        Cuadruplo quad = new Cuadruplo("r",op1,"","");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_INPUT:{
       jj_consume_token(TK_INPUT);
       jj_consume_token(TK_LPAR);
-      jj_consume_token(TK_ID);
+      id = jj_consume_token(TK_ID);
       jj_consume_token(TK_RPAR);
+op1 = id.image;
+
+                        Cuadruplo quad = new Cuadruplo("in",op1,"","");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_PRINT:{
@@ -176,12 +194,20 @@ Cuadruplo quad = new Cuadruplo();
       jj_consume_token(TK_PENCILUP);
       jj_consume_token(TK_LPAR);
       jj_consume_token(TK_RPAR);
+Cuadruplo quad = new Cuadruplo("pu","","","");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_PENCILDOWN:{
       jj_consume_token(TK_PENCILDOWN);
       jj_consume_token(TK_LPAR);
       jj_consume_token(TK_RPAR);
+Cuadruplo quad = new Cuadruplo("pd","","","");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_MOVE:{
@@ -191,6 +217,13 @@ Cuadruplo quad = new Cuadruplo();
       jj_consume_token(TK_COMMA);
       Exp();
       jj_consume_token(TK_RPAR);
+op2 = (String)pOperands.pop();
+                        op1 = (String)pOperands.pop();
+
+                        Cuadruplo quad = new Cuadruplo("m",op1,op2,"");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_CURVE:{
@@ -200,12 +233,23 @@ Cuadruplo quad = new Cuadruplo();
       jj_consume_token(TK_COMMA);
       Exp();
       jj_consume_token(TK_RPAR);
+op2 = (String)pOperands.pop();
+                        op1 = (String)pOperands.pop();
+
+                        Cuadruplo quad = new Cuadruplo("cv",op1,op2,"");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     case TK_HOME:{
       jj_consume_token(TK_HOME);
       jj_consume_token(TK_LPAR);
       jj_consume_token(TK_RPAR);
+Cuadruplo quad = new Cuadruplo("h","","","");
+                        quadCounter++;
+                        cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       break;
       }
     default:
@@ -245,7 +289,7 @@ Cuadruplo quad = new Cuadruplo();
     jj_consume_token(TK_RPAR);
   }
 
-  final public void Exp() throws ParseException {Token o, op1, op2;
+  final public void Exp() throws ParseException {
     Termino();
     PendingOperator("+","-");
     label_6:
@@ -262,16 +306,16 @@ Cuadruplo quad = new Cuadruplo();
       }
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_PLUS:{
-        o = jj_consume_token(TK_PLUS);
-pOperators.push(o.image); // meter el + a la stack de operadores
+        jj_consume_token(TK_PLUS);
+pOperators.push("+"); // meter el + a la stack de operadores
 
         Termino();
         PendingOperator("+","-");
         break;
         }
       case TK_MINUS:{
-        o = jj_consume_token(TK_MINUS);
-pOperators.push(o.image); // meter el - a la stack de operadores
+        jj_consume_token(TK_MINUS);
+pOperators.push("-"); // meter el - a la stack de operadores
 
         Termino();
         PendingOperator("+","-");
@@ -285,7 +329,7 @@ pOperators.push(o.image); // meter el - a la stack de operadores
     }
   }
 
-  final public void Termino() throws ParseException {Token o;
+  final public void Termino() throws ParseException {
     Factor();
     label_7:
     while (true) {
@@ -301,16 +345,16 @@ pOperators.push(o.image); // meter el - a la stack de operadores
       }
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_MULT:{
-        o = jj_consume_token(TK_MULT);
-pOperators.push(o.image); // meter el * a la stack de operadores
+        jj_consume_token(TK_MULT);
+pOperators.push("*"); // meter el * a la stack de operadores
 
         Factor();
         PendingOperator("*","/");
         break;
         }
       case TK_DIV:{
-        o = jj_consume_token(TK_DIV);
-pOperators.push(o.image); // meter el / a la stack de operadores
+        jj_consume_token(TK_DIV);
+pOperators.push("/"); // meter el / a la stack de operadores
 
         Factor();
         PendingOperator("*","/");
@@ -324,19 +368,24 @@ pOperators.push(o.image); // meter el / a la stack de operadores
     }
   }
 
-  final public void Factor() throws ParseException {Token o;
+  final public void Factor() throws ParseException {Token o; String index;
     if (jj_2_3(2)) {
       //indice de arreglo
-              //t = <TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
-      
-              //|
-      
-              // variable
               o = jj_consume_token(TK_ID);
-pOperands.push(o.image); // meter el id a la stack de operandos
-
+      jj_consume_token(TK_LBRACKET);
+      Exp();
+      jj_consume_token(TK_RBRACKET);
+index = (String)pOperands.pop();
+                pOperands.push(o.image + "-" + index );
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case TK_ID:{
+        // variable
+                o = jj_consume_token(TK_ID);
+pOperands.push(o.image); // meter el id a la stack de operandos
+
+        break;
+        }
       case TK_CTE_I:{
         //constante
                 o = jj_consume_token(TK_CTE_I);
@@ -352,7 +401,7 @@ pOperands.push(o.image); // meter la constante a la stack de operandos
     }
   }
 
-  final public void Asignacion() throws ParseException {String o, op1; Token r;
+  final public void Asignacion() throws ParseException {String op1, op2; Token r;
     if (jj_2_4(2)) {
       // variable
               r = jj_consume_token(TK_ID);
@@ -360,11 +409,10 @@ pOperands.push(o.image); // meter la constante a la stack de operandos
       Exp();
 op1 = (String)pOperands.pop();
 
-                Cuadruplo quad = new Cuadruplo("=", op1, " ", r.image);
+                Cuadruplo quad = new Cuadruplo("=", op1, "", r.image);
                 quadCounter++;
 
                 //System.out.println("quadCounter: " + quadCounter);
-
                 //Cuadruplo.displayCuadruplo(quad); 
 
                 cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
@@ -372,12 +420,24 @@ op1 = (String)pOperands.pop();
     } else {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case TK_ID:{
-        jj_consume_token(TK_ID);
+        // indice de arreglo
+                r = jj_consume_token(TK_ID);
         jj_consume_token(TK_LBRACKET);
         Exp();
         jj_consume_token(TK_RBRACKET);
         jj_consume_token(TK_EQ);
         Exp();
+op1 = (String)pOperands.pop(); // Valor que se va a asignar
+                op2 = (String)pOperands.pop(); // Indice del arreglo
+
+                Cuadruplo quad = new Cuadruplo("=", op1, op2, r.image);
+                quadCounter++;
+
+                //System.out.println("quadCounter: " + quadCounter);
+                //Cuadruplo.displayCuadruplo(quad); 
+
+                cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
         break;
         }
       default:
@@ -515,7 +575,7 @@ pJumps.push("" + (quadCounter+1));
     jj_consume_token(TK_RPAR);
 op1 = (String)pOperands.pop();
 
-                Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, " ", " ");
+                Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "", "");
                 quadCounter++;
                 cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
                 pJumps.push("" + (quadCounter-1));
@@ -523,7 +583,7 @@ op1 = (String)pOperands.pop();
 String end = (String)pJumps.pop();
                 String retorno = (String)pJumps.pop();
 
-                Cuadruplo quadFalse = new Cuadruplo("Goto", " ", " ", retorno);
+                Cuadruplo quadFalse = new Cuadruplo("Goto", "", "", retorno);
                 quadCounter++;
                 cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
 
@@ -568,7 +628,7 @@ String end = (String)pJumps.pop();
     jj_consume_token(TK_RPAR);
 op1 = (String)pOperands.pop();
 
-                Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, " ", " ");
+                Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "", "");
                 quadCounter++;
 
                 //System.out.println("quadCounter: " + quadCounter);
@@ -582,7 +642,7 @@ op1 = (String)pOperands.pop();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_ELSE:{
       jj_consume_token(TK_ELSE);
-Cuadruplo quadFalse = new Cuadruplo("Goto", " ", " ", " ");
+Cuadruplo quadFalse = new Cuadruplo("Goto", "", "", "");
                 quadCounter++;
 
                 //System.out.println("quadCounter: " + quadCounter);
@@ -613,17 +673,39 @@ String end = (String)pJumps.pop();
                 Fill ( Integer.parseInt(end), quadCounter);
   }
 
-  final public void Arreglo() throws ParseException {
+  final public void Arreglo() throws ParseException {Token id; String op1, op2; int index = 0;
     jj_consume_token(TK_ARR);
-    jj_consume_token(TK_ID);
+    id = jj_consume_token(TK_ID);
     jj_consume_token(TK_LBRACKET);
     Exp();
     jj_consume_token(TK_RBRACKET);
+op1 = id.image;
+                        op2 = (String)pOperands.pop();
+
+                        //System.out.println("El op2 es: " + op2);
+
+                        //size = (int)pOperands.pop();
+                        //TablaVariables.declararArreglo(var, new int[size]);
+
+                        Cuadruplo declaracion = new Cuadruplo("arr",op1,op2,"");
+                        quadCounter++;
+                        cuadruplos.addElement(declaracion); // Agregarlo a la queue de cuadruplos
+
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_EQ:{
       jj_consume_token(TK_EQ);
       jj_consume_token(TK_LPAR);
       Exp();
+op1 = (String)pOperands.pop(); // Valor que se va a asignar
+                        op2 = "" + index; // Indice del arreglo
+
+                        Cuadruplo asignacion = new Cuadruplo("=", op1, op2, id.image);
+                        quadCounter++;
+
+                        index++;
+
+                        cuadruplos.addElement(asignacion); // Agregarlo a la queue de cuadruplos
+
       label_10:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -637,6 +719,16 @@ String end = (String)pJumps.pop();
         }
         jj_consume_token(TK_COMMA);
         Exp();
+op1 = (String)pOperands.pop(); // Valor que se va a asignar
+                        op2 = "" + index; // Indice del arreglo
+
+                        Cuadruplo asignacion2 = new Cuadruplo("=", op1, op2, id.image);
+                        quadCounter++;
+
+                        index++;
+
+                        cuadruplos.addElement(asignacion2); // Agregarlo a la queue de cuadruplos
+
       }
       jj_consume_token(TK_RPAR);
       break;
@@ -795,29 +887,23 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3_7()
- {
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
-  private boolean jj_3_5()
- {
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_17()
- {
-    if (jj_scan_token(TK_PRINT)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
   private boolean jj_3R_16()
  {
     if (jj_scan_token(TK_INPUT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_20()
+ {
+    if (jj_scan_token(TK_MOVE)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_8()
+ {
+    if (jj_3R_12()) return true;
     return false;
   }
 
@@ -828,9 +914,30 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
+  private boolean jj_3_6()
+ {
+    if (jj_3R_12()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19()
+ {
+    if (jj_scan_token(TK_PENCILDOWN)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_3()
  {
     if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LBRACKET)) return true;
     return false;
   }
 
@@ -841,16 +948,10 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3_2()
+  private boolean jj_3R_18()
  {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8()
- {
-    if (jj_3R_12()) return true;
+    if (jj_scan_token(TK_PENCILUP)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
@@ -861,9 +962,17 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3_6()
+  private boolean jj_3R_11()
  {
-    if (jj_3R_12()) return true;
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
     return false;
   }
 
@@ -902,6 +1011,18 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
+  private boolean jj_3_7()
+ {
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  private boolean jj_3_5()
+ {
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
   private boolean jj_3R_22()
  {
     if (jj_scan_token(TK_HOME)) return true;
@@ -909,9 +1030,9 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3R_11()
+  private boolean jj_3R_17()
  {
-    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_PRINT)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
@@ -923,38 +1044,10 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3R_20()
- {
-    if (jj_scan_token(TK_MOVE)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
+  private boolean jj_3_2()
  {
     if (jj_scan_token(TK_ID)) return true;
     if (jj_scan_token(TK_LBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3_4()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_19()
- {
-    if (jj_scan_token(TK_PENCILDOWN)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18()
- {
-    if (jj_scan_token(TK_PENCILUP)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }
 
@@ -980,7 +1073,7 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
       jj_la1_0 = new int[] {0x0,0x8000,0x4000,0x0,0x10000000,0x0,0x7fe,0x8000000,0x0,0x30000000,0x30000000,0xc0000000,0xc0000000,0x0,0x0,0x1e0000,0x1e0000,0x1800,0x8000000,0x1800,0x8000000,0x0,0x2000,0x8000000,0x10000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x2,0x0,0x0,0x6,0x0,0x6,0x0,0x0,0x3,0x0,0x0,0x0,0x0,0x1,0x2,0x0,0x0,0x2,0x0,0x2,0x0,0x2,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x2,0x0,0x0,0x6,0x0,0x6,0x0,0x0,0x3,0x0,0x0,0x0,0x0,0x3,0x2,0x0,0x0,0x2,0x0,0x2,0x0,0x2,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[8];
   private boolean jj_rescan = false;
