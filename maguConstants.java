@@ -41,15 +41,15 @@ public interface maguConstants {
   /** RegularExpression Id. */
   int TK_MAIN = 16;
   /** RegularExpression Id. */
-  int TK_EQ = 17;
+  int TK_NE = 17;
   /** RegularExpression Id. */
-  int TK_NE = 18;
+  int TK_EQT = 18;
   /** RegularExpression Id. */
-  int TK_EQT = 19;
+  int TK_LT = 19;
   /** RegularExpression Id. */
-  int TK_LT = 20;
+  int TK_GT = 20;
   /** RegularExpression Id. */
-  int TK_GT = 21;
+  int TK_EQ = 21;
   /** RegularExpression Id. */
   int TK_LPAR = 22;
   /** RegularExpression Id. */
@@ -103,11 +103,11 @@ public interface maguConstants {
     "\"arr\"",
     "\"func\"",
     "\"main\"",
-    "\"=\"",
     "\"<>\"",
     "\"==\"",
     "\"<\"",
     "\">\"",
+    "\"=\"",
     "\"(\"",
     "\")\"",
     "\"[\"",

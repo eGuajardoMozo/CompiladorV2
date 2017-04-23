@@ -62,11 +62,11 @@ TOKEN:
 	|	< TK_ARR : "arr" >						{}
 	|	< TK_FUNC : "func" >					{}
 	|	< TK_MAIN : "main" >					{}
-	|	< TK_EQ: "=" >							{}
 	|	< TK_NE: "<>" >							{}
 	|	< TK_EQT: "==" >						{}
 	|	< TK_LT: "<" >							{}
 	|	< TK_GT: ">" >							{}
+	|	< TK_EQ: "=" >							{}
 	|	< TK_LPAR: "(" >						{}
 	|	< TK_RPAR: ")" >						{}
 	|	< TK_LBRACKET: "[" >					{}
@@ -118,7 +118,9 @@ void Programa() : {String main;}
     	Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
     	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
     	MostrarCuadruplos();
-		MaquinaVirtual.Ejecucion(cuadruplos);
+
+    	MaquinaVirtual mv = new MaquinaVirtual();
+		mv.Ejecucion(cuadruplos);
     }
 }
 
@@ -479,7 +481,6 @@ void Bool() : {Token o;}
 			pOperators.push(o.image); // meter el == a la stack de operandos
 		}
 		PendingOperatorBool()
-
 
 	)?
 }

@@ -85,7 +85,9 @@ main = (String) pJumps.pop();
 Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
         cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
         MostrarCuadruplos();
-                MaquinaVirtual.Ejecucion(cuadruplos);
+
+        MaquinaVirtual mv = new MaquinaVirtual();
+                mv.Ejecucion(cuadruplos);
   }
 
   final public void Func() throws ParseException {String op1, op2, s, s2, index; Token id; Vector userString = new Vector(1);
@@ -968,27 +970,6 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3_4()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_13()
- {
-    if (jj_scan_token(TK_FORWARD)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18()
- {
-    if (jj_scan_token(TK_PENCILUP)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
   private boolean jj_3_7()
  {
     if (jj_3R_11()) return true;
@@ -1077,16 +1058,16 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3_6()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
   private boolean jj_3R_21()
  {
     if (jj_scan_token(TK_CURVE)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_6()
+ {
+    if (jj_3R_12()) return true;
     return false;
   }
 
@@ -1132,6 +1113,27 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_13()
+ {
+    if (jj_scan_token(TK_FORWARD)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18()
+ {
+    if (jj_scan_token(TK_PENCILUP)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
   /** Generated Token Manager. */
   public maguTokenManager token_source;
   SimpleCharStream jj_input_stream;
@@ -1151,7 +1153,7 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x4000,0x8000,0x0,0x20000000,0x0,0x7fe,0x10000000,0x0,0x60000000,0x60000000,0x80000000,0x80000000,0x0,0x0,0x3c0000,0x3c0000,0x1800,0x10000000,0x1800,0x10000000,0x0,0x2000,0x10000000,0x20000,};
+      jj_la1_0 = new int[] {0x0,0x4000,0x8000,0x0,0x20000000,0x0,0x7fe,0x10000000,0x0,0x60000000,0x60000000,0x80000000,0x80000000,0x0,0x0,0x1e0000,0x1e0000,0x1800,0x10000000,0x1800,0x10000000,0x0,0x2000,0x10000000,0x200000,};
    }
    private static void jj_la1_init_1() {
       jj_la1_1 = new int[] {0x4,0x0,0x0,0xc,0x0,0xc,0x0,0x0,0x6,0x0,0x0,0x1,0x1,0x6,0x4,0x0,0x0,0x4,0x0,0x4,0x0,0x4,0x0,0x0,0x0,};

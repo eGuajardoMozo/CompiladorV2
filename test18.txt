@@ -4,14 +4,14 @@ main()
 	z = 3,
 	if (z > 2)
 	{
-	  forward(60),
-      left(35),
-      pencilup(),
-	  forward(30),
-      pencildown(),
-      move( 5 * 6,  7 + 2),
-      curve( 5,  7 + 2),
-      home()
+		forward(60),
+		left(35),
+		pencilup(),
+		forward(30),
+		pencildown(),
+		move( 5 * 6,  7 + 2),
+		curve( 5,  7 + 2),
+		home()
 	}
 	else
 	{
