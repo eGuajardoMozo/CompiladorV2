@@ -21,7 +21,7 @@ class TablaVariables
 	}
 	*/
 
-	public static Hashtable tabla; 	//Tabla que almacenara los tokens declarados
+	public static Hashtable tabla = new Hashtable(); 	//Tabla que almacenara los tokens declarados
 	public static Hashtable tablaArr;
 
 	public TablaVariables(){
@@ -32,9 +32,9 @@ class TablaVariables
 
 
 	// Agregar a la tabla de tokens el id que esta siendo declarado junto con su valor, o sobreescribir su valor si ya estaba en la tabla
-	public static void asignarValor(Token id, int valor) {	
-		tabla.put(id.image, valor);
-		System.out.println("Se ha asignado " + id.image + " = " + getValor(id));
+	public static void asignarValor(String id, int valor) {	
+		tabla.put(id, valor);
+		System.out.println("Se ha asignado " + id + " = " + getValor(id));
 	}
 
 
@@ -59,20 +59,20 @@ class TablaVariables
 	}
 
 	// Asignación de un id a id
-	public static void asignarID(Token id, Token id2) {
+	public static void asignarID(String id, String id2) {
 		// Si el id que se trata de asignar existe
-		if(tabla.containsKey(id2.image)) {
-			tabla.put(id.image, (Integer)tabla.get(id2.image)); // Asignar el valor de id2 a id
-			System.out.println("Se ha asignado " + id.image + " = " + getValor(id));
+		if(tabla.containsKey(id2)) {
+			tabla.put(id, (Integer)tabla.get(id2)); // Asignar el valor de id2 a id
+			System.out.println("Se ha asignado " + id + " = " + getValor(id));
 		}
 		else {
-			System.out.println("Error: El id " + id2.image + " no ha sido definido \r\nLinea: " + id2.beginLine);
+			System.out.println("Error: El id " + id2 + " no ha sido definido \r\nLinea: " + id2);
 		}
 	}
 
 	// Obtener el valor de una variable
-	public static int getValor(Token id){
-		return (Integer)tabla.get(id.image);	
+	public static int getValor(String id){
+		return (Integer)tabla.get(id);	
 	}
 
 	public Hashtable getTable() {

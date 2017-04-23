@@ -492,7 +492,7 @@ public class TurtleGraphicsWindow extends Frame
    /*
     * Object that does the drawing.
     */
-   private Sprite turtle;
+   private static Sprite turtle;
 
 
    /*
@@ -684,7 +684,7 @@ public class TurtleGraphicsWindow extends Frame
     *               to the center of the arc line if the pen width is
     *               greater than 1.
     */
-   public void arc( double angle, double radius ) throws IllegalArgumentException
+   public static void arc( double angle, double radius ) throws IllegalArgumentException
    {
       if ( angle == 0 || radius == 0 )
          return;
@@ -704,7 +704,7 @@ public class TurtleGraphicsWindow extends Frame
     *               to the center of the arc line if the pen width is
     *               greater than 1.
     */
-   public void arc( int angle, int radius ) throws IllegalArgumentException
+   public static void arc( int angle, int radius ) throws IllegalArgumentException
    { arc( (double) angle, (double) radius ); }
 
 
@@ -830,7 +830,7 @@ public class TurtleGraphicsWindow extends Frame
    * @param steps Number of turtle steps to take.
    * @see #forward
    */
-  public void fd( double steps )
+  public static void fd( double steps )
   {
      try { turtle.fd( steps ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -846,7 +846,7 @@ public class TurtleGraphicsWindow extends Frame
    * @param steps Number of turtle steps to take.
    * @see #forward
    */
-  public void fd( int steps )
+  public static void fd( int steps )
   {
      try { turtle.fd( steps ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -862,7 +862,7 @@ public class TurtleGraphicsWindow extends Frame
    * @param steps number of turtle steps to move in current direction
    * @see #fd
    */
-  public void forward( double steps )
+  public static void forward( double steps )
   {
      try { turtle.fd( steps ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -878,7 +878,7 @@ public class TurtleGraphicsWindow extends Frame
    * @param steps number of turtle steps to move in current direction
    * @see #fd
    */
-  public void forward( int steps )
+  public static void forward( int steps )
   {
      try { turtle.fd( steps ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -930,7 +930,7 @@ public class TurtleGraphicsWindow extends Frame
    *
    * @see #setxy
    */
-  public void home()
+  public static void home()
   {
      try { turtle.home(); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1006,7 +1006,7 @@ public class TurtleGraphicsWindow extends Frame
     * @param degrees angle to rotate the turtle's heading
     * @see #lt
     */
-   public void left( double degrees )
+   public static void left( double degrees )
    {
       try { turtle.lt( degrees ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1019,7 +1019,7 @@ public class TurtleGraphicsWindow extends Frame
     * @param degrees angle to rotate the turtle's heading
     * @see #lt
     */
-   public void left( int degrees )
+   public static void left( int degrees )
    {
       try { turtle.lt( degrees ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1140,7 +1140,7 @@ public class TurtleGraphicsWindow extends Frame
    * @see #pu
    * @see #penup
    */
-  public void pd()
+  public static void pd()
   { turtle.pd(); }
 
 
@@ -1164,7 +1164,7 @@ public class TurtleGraphicsWindow extends Frame
    * @see #penup
    * @see #pu
    */
-  public void pendown()
+  public static void pendown()
   { turtle.pd(); }
 
 
@@ -1177,7 +1177,7 @@ public class TurtleGraphicsWindow extends Frame
    * @see #pendown
    * @see #pu
    */
-  public void penup()
+  public static void penup()
   { turtle.pu(); }
 
 
@@ -1201,7 +1201,7 @@ public class TurtleGraphicsWindow extends Frame
    * @see #pendown
    * @see #penup
    */
-  public void pu() { turtle.pu(); }
+  public static void pu() { turtle.pu(); }
 
 
   /**
@@ -1211,7 +1211,7 @@ public class TurtleGraphicsWindow extends Frame
    * @param degrees angle to rotate the turtle's heading
    * @see #rt
    */
-  public void right( double degrees )
+  public static void right( double degrees )
   {
      try { turtle.rt( degrees ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1224,7 +1224,7 @@ public class TurtleGraphicsWindow extends Frame
    * @param degrees angle to rotate the turtle's heading
    * @see #rt
    */
-  public void right( int degrees )
+  public static void right( int degrees )
   {
      try { turtle.rt( degrees ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1859,7 +1859,7 @@ public class TurtleGraphicsWindow extends Frame
     * @see #setx
     * @see #sety
     */
-   public void setxy( double newX, double newY )
+   public static void setxy( double newX, double newY )
    {
       try { turtle.setxy( newX, newY ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1876,7 +1876,7 @@ public class TurtleGraphicsWindow extends Frame
     * @see #setx
     * @see #sety
     */
-   public void setxy( int newX, int newY )
+   public static void setxy( int newX, int newY )
    {
       try { turtle.setxy( newX, newY ); }
       catch (AbortException ae) { /* ignore  */ }
@@ -1894,7 +1894,7 @@ public class TurtleGraphicsWindow extends Frame
     * @see #setx
     * @see #sety
     */
-   public void setxy( TGPoint newPt )
+   public static void setxy( TGPoint newPt )
    {
       try { turtle.setxy( newPt ); }
       catch (AbortException ae) { /* ignore  */ }

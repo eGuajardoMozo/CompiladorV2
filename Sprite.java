@@ -288,7 +288,7 @@ public class Sprite extends Component
     * state, take a nap. The current Thread is suspended for throttleSleepAmt
     * milliseconds.
     */
-   private int throttleSleepAmt = 0;
+   private static int throttleSleepAmt = 0;
 
 
    /*
@@ -296,14 +296,14 @@ public class Sprite extends Component
     * come and go.  When there is no current canvas, all of this Sprite's
     * state is maintained as if there was one, just no drawing takes place.
     */
-   private TGCanvas canvas;
+   private static TGCanvas canvas;
 
    /*
     * stuff related to the pixels composing this Sprite's representation
     */
-   private Image spriteImage;
+   private static Image spriteImage;
    private MemoryImageSource imageProducer;
-   private SpritePixels spritePixels;
+   private static SpritePixels spritePixels;
 
    /*
     * State of this Sprite...
@@ -320,7 +320,7 @@ public class Sprite extends Component
     * Color of lines drawn by Sprite movement with the pen down and text
     * drawn (the LABEL command).
     */
-   private Color curColor;
+   private static Color curColor;
 
    /*
     * Location of Sprite in TurtleSpace.
@@ -328,7 +328,7 @@ public class Sprite extends Component
     * via the setCurPoint() method so that visible stuff the Sprite
     * does can be throttled.
     */
-   private TGPoint curPoint;
+   private static TGPoint curPoint;
 
    /*
     * Direction Sprite is pointing in radians; zero is positive X axis.
@@ -336,31 +336,31 @@ public class Sprite extends Component
     * via the setCurHeading() method so that visible stuff the Sprite
     * does can be throttled.
     */
-   private double curHeading;
+   private static double curHeading;
 
    /*
     * true if this Sprite's image is being displayed on the graphics canvas
     */
-   private boolean showTurtle;
+   private static boolean showTurtle;
 
    /*
     * true if the Sprite's pen is down, any movement leaves/draws a line on
     * the graphics canvas.
     */
-   private boolean penDown;
+   private static boolean penDown;
 
    /*
     * A pattern of lengths of down and up pen states when drawing lines.
     * If null, draw solid lines. Otherwise, the array's even elements are
     * distances to draw and the odd elements are distances to skip over.
     */
-   private float[] penPattern;
+   private static float[] penPattern;
 
    /*
     * Width of the line drawn by the Sprite when its pen is down and it
     * moves, e.g. FORWARD, SETXY, etc...
     */
-   private int curPenSize;
+   private static int curPenSize;
 
    /*
     * The type of ends on lines drawn. Lines the turtle draws can have
@@ -369,7 +369,7 @@ public class Sprite extends Component
     * from java.awt.BasicStroke which are stored here and supplied to
     * TGLineOp constructors.
     */
-   private int typeLinecap;
+   private static int typeLinecap;
 
    /*
     * Initial (default) Font Capital Letter Ascent.
@@ -489,7 +489,7 @@ public class Sprite extends Component
     * @param color java.awt.Color of line
     * @param width line width in pixels
     */
-   private TGPoint drawLine(TGPoint p1, double steps, double heading, Color color, int width )
+   private static TGPoint drawLine(TGPoint p1, double steps, double heading, Color color, int width )
    {
       if ( steps < 0 )
       {
@@ -611,7 +611,7 @@ public class Sprite extends Component
     * The curPoint variable is only changed here so that a throttle
     * can be maintained.
     */
-   private void setCurPoint( TGPoint newCurPoint ) throws AbortException
+   private static void setCurPoint( TGPoint newCurPoint ) throws AbortException
    {
       curPoint = newCurPoint;
       if ( canvas != null && (throttleSleepAmt > 0) && showTurtle )
@@ -820,19 +820,19 @@ public class Sprite extends Component
     * @param steps Distance in TurtleSpace to move.
     * @see #forward
     */
-   public void fd( float steps ) throws AbortException
+   public static void fd( float steps ) throws AbortException
    { fd( (double) steps ); }
 
-   public void fd( int steps ) throws AbortException
+   public static void fd( int steps ) throws AbortException
    { fd( (double) steps ); }
 
-   public void fd( double steps ) throws AbortException
+   public static void fd( double steps ) throws AbortException
    {
       TGPoint newCurPoint;
       if ( canvas != null && penDown )
          newCurPoint = drawLine( curPoint, steps, (double) curHeading, curColor, curPenSize );
       else
-         newCurPoint = curPoint.otherEndPoint((double) curHeading, steps);
+         newCurPoint = curPoint.otherEndPoint((double) curHeading, steps);	
       if ( canvas != null && (penDown  || showTurtle) )
          canvas.repaint();
       setCurPoint( newCurPoint );
