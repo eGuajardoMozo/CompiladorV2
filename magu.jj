@@ -38,6 +38,7 @@ class magu
 	Vector cuadruplos = new Vector(1);
 
 	int currentTemporal  = 1;
+	int currentString = 1;
 	int quadCounter = 0;
 	
 }
@@ -107,7 +108,7 @@ void Programa() : {String main;}
 
 	{
 		main = (String) pJumps.pop();
-		System.out.println("Main starts at quadCounter: " + (quadCounter+1));
+		//System.out.println("Main starts at quadCounter: " + (quadCounter+1));
 		Fill ( Integer.parseInt(main) , quadCounter);
 	}
 
@@ -121,7 +122,7 @@ void Programa() : {String main;}
     }
 }
 
-void Func() : {String op1, op2; Token id;}
+void Func() : {String op1, op2, s, s2, index; Token id; Vector userString = new Vector(1);}
 {
     ( 
     	  <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR> 
@@ -160,24 +161,63 @@ void Func() : {String op1, op2; Token id;}
     	| <TK_PRINT> <TK_LPAR> 
     			( 
     				LOOKAHEAD(2)
-    				<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
+    				id = <TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET>
+    				{
+    					index = (String)pOperands.pop();
+    					s =  id.image + "-" + index;
+    					userString.addElement(s);
+    				}
     			|
-    				<TK_ID> 					
+    				id = <TK_ID>
+    				{
+    					s = id.image;
+    					userString.addElement(s);
+    				}			
     			|
-    				<TK_STRING>
+    				id = <TK_STRING>
+    				{
+    					s = id.image;
+    					userString.addElement(s);
+    				} 
     			)
 
     			( <TK_PLUS> 
     				( 
     					LOOKAHEAD(2)
-    			  		<TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> 	
+    			  		id = <TK_ID> <TK_LBRACKET> Exp() <TK_RBRACKET> 
+    			  		{ 
+    			  			index = (String)pOperands.pop();
+    			  			s = id.image + "-" + index;
+    			  			userString.addElement(s);
+    			  		}
     			  	|
-    					<TK_ID>
+    					id = <TK_ID>
+    					{
+    						s = id.image;
+    						userString.addElement(s); 
+    					}
     				|
-    					<TK_STRING>
+    					id = <TK_STRING>
+    					{
+    						s = id.image;
+    						userString.addElement(s);
+    					}  
     				) 
     			)*
     			<TK_RPAR>
+
+    			{
+    				String str = "s" + currentString;
+
+    				Cuadruplo quad = new Cuadruplo("pr", str ,"","");
+    				currentString++;
+    	  			quadCounter++;
+    	  			cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
+    	  			TablaStrings.addString( str, userString ); // Agregar vector de strings a tabla
+
+	    	  		TablaStrings.displayStringVector(str); // Desplegar string
+    			}
 
     	| <TK_PENCILUP> <TK_LPAR> <TK_RPAR>
     	  	{
@@ -525,7 +565,7 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 
 	// Insert into dirFunc current quadCounter. This is where functions starts. 
 	{
-		System.out.println( id.image + " starts at quadCounter: " + (quadCounter+1));
+		//System.out.println( id.image + " starts at quadCounter: " + (quadCounter+1));
 
 		TablaFunciones.setFuncStart(id.image, quadCounter+1 );
 	}
