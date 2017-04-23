@@ -9,6 +9,50 @@ import java.lang.String;
 
 class TablaFunciones extends TablaVariables
 {
+	public static Hashtable dirFunc = new Hashtable(); // Tabla que almacena las funciones
+
+	// Agrega una nueva función a la tabla y le asigna una tabla de variables locales
+	public static void addFunc(String funcName) {
+		Hashtable varLocales = new Hashtable();
+		dirFunc.put(funcName, varLocales);
+	}
+
+	// Define para la función dada el cuadruplo donde inicia
+	public static void setFuncStart(String funcName, int quadCounter){
+		Hashtable varLocales = (Hashtable) dirFunc.get(funcName);
+		varLocales.put( "funcStart" ,  quadCounter );
+	}
+
+	// Regresa el cuadruplo donde inicia la función
+	public static int getFuncStart(String funcName){
+		Hashtable varLocales = (Hashtable) dirFunc.get(funcName);
+		int start = (Integer) varLocales.get("funcStart");
+		return start;
+	}
+	
+
+	/*
+
+	// Define para la función dada el numero de parametros que tiene
+	public static void defineNumParam(String funcName, int numParam){
+
+		dirFunc.get(funcName).put( "numParam" ,  numParam );
+	}
+
+	// Agrega la variable a la varTable de la función
+	public static void addVar(String var, int numParam){
+
+		dirFunc.get(funcName).put( "numParam" ,  numParam );
+	}
+
+	*/
+
+
+
+
+
+
+	/*
 	  
 	public static Hashtable tablafunc1 = new Hashtable(); 	//Tabla que almacenara las funciones
 	public static Hashtable tablafunc2 = new Hashtable();	//Tabla que almacenara los parametros
@@ -43,6 +87,9 @@ class TablaFunciones extends TablaVariables
 	public Hashtable getTable() {
 		return tablafunc1;
 	}
+
+
+	*/
  }
   
   

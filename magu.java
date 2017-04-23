@@ -28,7 +28,7 @@ class magu implements maguConstants {
         int currentTemporal  = 1;
         int quadCounter = 0;
 
-  final public void Programa() throws ParseException {
+  final public void Programa() throws ParseException {String main;
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -45,7 +45,7 @@ class magu implements maguConstants {
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case TK_FUNC:{
+      case TK_ARR:{
         ;
         break;
         }
@@ -53,12 +53,17 @@ class magu implements maguConstants {
         jj_la1[1] = jj_gen;
         break label_2;
       }
-      Definicion_Func();
+      Arreglo();
     }
+Cuadruplo mainQuad = new Cuadruplo("Goto", "", "", "");
+                quadCounter++;
+                cuadruplos.addElement(mainQuad); // Agregarlo a la queue de cuadruplos
+
+                pJumps.push("" + (quadCounter-1));
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case TK_ARR:{
+      case TK_FUNC:{
         ;
         break;
         }
@@ -66,8 +71,14 @@ class magu implements maguConstants {
         jj_la1[2] = jj_gen;
         break label_3;
       }
-      Arreglo();
+      Definicion_Func();
     }
+    jj_consume_token(TK_MAIN);
+    jj_consume_token(TK_LPAR);
+    jj_consume_token(TK_RPAR);
+main = (String) pJumps.pop();
+                System.out.println("Main starts at quadCounter: " + (quadCounter+1));
+                Fill ( Integer.parseInt(main) , quadCounter);
     Secuencia();
     jj_consume_token(0);
 Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
@@ -259,13 +270,27 @@ Cuadruplo quad = new Cuadruplo("h","","","");
     }
   }
 
-  final public void Funcion() throws ParseException {
-    jj_consume_token(TK_ID);
+  final public void Funcion() throws ParseException {Token id; int paramCounter = 0, start; String argument;
+    id = jj_consume_token(TK_ID);
+
     jj_consume_token(TK_LPAR);
+// Generate function call quad. ERA size equivalent, not necessary
+
+        Cuadruplo func = new Cuadruplo("func",id.image,"","");
+        quadCounter++;
+        cuadruplos.addElement(func); // Agregarlo a la queue de cuadruplos
+
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_CTE_I:
     case TK_ID:{
       Exp();
+paramCounter++;
+                argument = (String)pOperands.pop();
+
+                Cuadruplo quad = new Cuadruplo("param",argument,"","param" + paramCounter);
+                quadCounter++;
+                cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
       label_5:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -278,7 +303,14 @@ Cuadruplo quad = new Cuadruplo("h","","","");
           break label_5;
         }
         jj_consume_token(TK_COMMA);
+paramCounter++;
         Exp();
+argument = (String)pOperands.pop();
+
+                        Cuadruplo quad2 = new Cuadruplo("param",argument,"","param" + paramCounter);
+                        quadCounter++;
+                        cuadruplos.addElement(quad2); // Agregarlo a la queue de cuadruplos
+
       }
       break;
       }
@@ -287,6 +319,17 @@ Cuadruplo quad = new Cuadruplo("h","","","");
       ;
     }
     jj_consume_token(TK_RPAR);
+// Verify that paramCounter is the same as the number of params in the func definition
+
+
+        // Generate gosub, procname, address where it starts
+
+        start = TablaFunciones.getFuncStart(id.image);
+
+        Cuadruplo gosub = new Cuadruplo("gosub",id.image,"", "" + start );
+            quadCounter++;
+            cuadruplos.addElement(gosub); // Agregarlo a la queue de cuadruplos
+
   }
 
   final public void Exp() throws ParseException {
@@ -590,13 +633,17 @@ String end = (String)pJumps.pop();
                 Fill ( Integer.parseInt(end), quadCounter);
   }
 
-  final public void Definicion_Func() throws ParseException {
+  final public void Definicion_Func() throws ParseException {Token id, var; int numParam = 0;
     jj_consume_token(TK_FUNC);
-    jj_consume_token(TK_ID);
+    id = jj_consume_token(TK_ID);
+// 1.- Insert func name into DirFunc table
+                TablaFunciones.addFunc(id.image);
     jj_consume_token(TK_LPAR);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_ID:{
-      jj_consume_token(TK_ID);
+      // 2- Insert every parameter into function's VarTable
+                      var = jj_consume_token(TK_ID);
+numParam++;
       label_9:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -609,7 +656,8 @@ String end = (String)pJumps.pop();
           break label_9;
         }
         jj_consume_token(TK_COMMA);
-        jj_consume_token(TK_ID);
+        var = jj_consume_token(TK_ID);
+numParam++;
       }
       break;
       }
@@ -618,7 +666,14 @@ String end = (String)pJumps.pop();
       ;
     }
     jj_consume_token(TK_RPAR);
+System.out.println( id.image + " starts at quadCounter: " + (quadCounter+1));
+
+                TablaFunciones.setFuncStart(id.image, quadCounter+1 );
     Secuencia();
+Cuadruplo quad = new Cuadruplo("endproc", "", "", "");
+                quadCounter++;
+                cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+
   }
 
   final public void Condicion() throws ParseException {String op1, r;
@@ -887,74 +942,6 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     finally { jj_save(7, xla); }
   }
 
-  private boolean jj_3R_16()
- {
-    if (jj_scan_token(TK_INPUT)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_20()
- {
-    if (jj_scan_token(TK_MOVE)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_15()
- {
-    if (jj_scan_token(TK_RIGHT)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_6()
- {
-    if (jj_3R_12()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_19()
- {
-    if (jj_scan_token(TK_PENCILDOWN)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_3()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_LBRACKET)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_14()
- {
-    if (jj_scan_token(TK_LEFT)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18()
- {
-    if (jj_scan_token(TK_PENCILUP)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
   private boolean jj_3R_13()
  {
     if (jj_scan_token(TK_FORWARD)) return true;
@@ -966,13 +953,6 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
  {
     if (jj_scan_token(TK_ID)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3_4()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
     return false;
   }
 
@@ -1011,18 +991,6 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3_7()
- {
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
-  private boolean jj_3_5()
- {
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
   private boolean jj_3R_22()
  {
     if (jj_scan_token(TK_HOME)) return true;
@@ -1037,6 +1005,18 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
+  private boolean jj_3_8()
+ {
+    if (jj_3R_12()) return true;
+    return false;
+  }
+
+  private boolean jj_3_6()
+ {
+    if (jj_3R_12()) return true;
+    return false;
+  }
+
   private boolean jj_3R_21()
  {
     if (jj_scan_token(TK_CURVE)) return true;
@@ -1048,6 +1028,81 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
  {
     if (jj_scan_token(TK_ID)) return true;
     if (jj_scan_token(TK_LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3_3()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_16()
+ {
+    if (jj_scan_token(TK_INPUT)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_20()
+ {
+    if (jj_scan_token(TK_MOVE)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_15()
+ {
+    if (jj_scan_token(TK_RIGHT)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19()
+ {
+    if (jj_scan_token(TK_PENCILDOWN)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_14()
+ {
+    if (jj_scan_token(TK_LEFT)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18()
+ {
+    if (jj_scan_token(TK_PENCILUP)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
+  private boolean jj_3_7()
+ {
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  private boolean jj_3_5()
+ {
+    if (jj_3R_11()) return true;
     return false;
   }
 
@@ -1070,10 +1125,10 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x8000,0x4000,0x0,0x10000000,0x0,0x7fe,0x8000000,0x0,0x30000000,0x30000000,0xc0000000,0xc0000000,0x0,0x0,0x1e0000,0x1e0000,0x1800,0x8000000,0x1800,0x8000000,0x0,0x2000,0x8000000,0x10000,};
+      jj_la1_0 = new int[] {0x0,0x4000,0x8000,0x0,0x20000000,0x0,0x7fe,0x10000000,0x0,0x60000000,0x60000000,0x80000000,0x80000000,0x0,0x0,0x3c0000,0x3c0000,0x1800,0x10000000,0x1800,0x10000000,0x0,0x2000,0x10000000,0x20000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x2,0x0,0x0,0x6,0x0,0x6,0x0,0x0,0x3,0x0,0x0,0x0,0x0,0x3,0x2,0x0,0x0,0x2,0x0,0x2,0x0,0x2,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x4,0x0,0x0,0xc,0x0,0xc,0x0,0x0,0x6,0x0,0x0,0x1,0x1,0x6,0x4,0x0,0x0,0x4,0x0,0x4,0x0,0x4,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[8];
   private boolean jj_rescan = false;
@@ -1260,7 +1315,7 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[39];
+    boolean[] la1tokens = new boolean[40];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -1277,7 +1332,7 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
         }
       }
     }
-    for (int i = 0; i < 39; i++) {
+    for (int i = 0; i < 40; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

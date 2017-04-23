@@ -60,6 +60,7 @@ TOKEN:
 	|	< TK_ELSE : "else" >					{}
 	|	< TK_ARR : "arr" >						{}
 	|	< TK_FUNC : "func" >					{}
+	|	< TK_MAIN : "main" >					{}
 	|	< TK_EQ: "=" >							{}
 	|	< TK_NE: "<>" >							{}
 	|	< TK_EQT: "==" >						{}
@@ -87,9 +88,30 @@ SKIP:
 	" "	| "\r\n" | "\t"
 }
 
-void Programa() : {}
+void Programa() : {String main;}
 {   
-    ( Asignacion() )* ( Definicion_Func() )* ( Arreglo() )* Secuencia()  <EOF>
+    ( Asignacion() )*
+    ( Arreglo() )*
+
+    {
+		Cuadruplo mainQuad = new Cuadruplo("Goto", "", "", "");
+		quadCounter++;
+		cuadruplos.addElement(mainQuad); // Agregarlo a la queue de cuadruplos
+
+		pJumps.push("" + (quadCounter-1));
+	}
+
+    ( Definicion_Func() )*
+    
+    <TK_MAIN> <TK_LPAR> <TK_RPAR>
+
+	{
+		main = (String) pJumps.pop();
+		System.out.println("Main starts at quadCounter: " + (quadCounter+1));
+		Fill ( Integer.parseInt(main) , quadCounter);
+	}
+
+    Secuencia()  <EOF>
 
     {
     	Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
@@ -133,6 +155,7 @@ void Func() : {String op1, op2; Token id;}
     	  		quadCounter++;
     	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 	    	}
+	    	
     	| <TK_PRINT> <TK_LPAR> 
     			( 
     				LOOKAHEAD(2)
@@ -194,10 +217,70 @@ void Func() : {String op1, op2; Token id;}
     )   
 }  
 
-void Funcion() : {} 
+
+
+
+
+void Funcion() : {Token id; int paramCounter = 0, start; String argument;} 
 {	
-    <TK_ID> <TK_LPAR> ( ( Exp() ) ( <TK_COMMA> Exp() )* )? <TK_RPAR>
+    id = <TK_ID>
+
+    {
+    	// Verify that a function with this id exists
+    } 
+
+
+    <TK_LPAR> 
+    {
+    	// Generate function call quad. ERA size equivalent, not necessary
+    	
+    	Cuadruplo func = new Cuadruplo("func",id.image,"","");
+    	quadCounter++;
+    	cuadruplos.addElement(func); // Agregarlo a la queue de cuadruplos
+    }
+
+    // ARGUMENTS
+    ( 
+    	Exp()
+    	{
+    		paramCounter++;
+    		argument = (String)pOperands.pop();
+
+    		Cuadruplo quad = new Cuadruplo("param",argument,"","param" + paramCounter);
+    		quadCounter++;
+    		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	}
+
+    	( <TK_COMMA> {paramCounter++;}
+    		Exp() 
+    		{
+	    		argument = (String)pOperands.pop();
+
+	    		Cuadruplo quad2 = new Cuadruplo("param",argument,"","param" + paramCounter);
+	    		quadCounter++;
+	    		cuadruplos.addElement(quad2); // Agregarlo a la queue de cuadruplos
+    		}
+    	)* 
+    )? 
+
+    <TK_RPAR>
+    {
+    	// Verify that paramCounter is the same as the number of params in the func definition
+
+
+    	// Generate gosub, procname, address where it starts
+    	start = TablaFunciones.getFuncStart(id.image);
+
+    	Cuadruplo gosub = new Cuadruplo("gosub",id.image,"", "" + start );
+	    quadCounter++;
+	    cuadruplos.addElement(gosub); // Agregarlo a la queue de cuadruplos
+    }
 }
+
+
+
+
+
 
 void Exp() : {}
 {
@@ -399,22 +482,71 @@ void While() : {String op1, r;}
 	}
 }
 
-void Definicion_Func() : {}
+
+
+
+
+
+
+void Definicion_Func() : {Token id, var; int numParam = 0;}
 {
-	<TK_FUNC> <TK_ID> 
+	<TK_FUNC> id = <TK_ID>
+	{
+		// 1.- Insert func name into DirFunc table
+		TablaFunciones.addFunc(id.image);
+
+	}
+
+	
+	// Insert into dirFunc, num of parameters defined.
+
+	// Insert into dirFunc, num of local variables defined (?)
+
+	
 	<TK_LPAR>
 	( 
-		<TK_ID>
+		// 2- Insert every parameter into function's VarTable
+		var = <TK_ID>
+		{
+			numParam++;
+		}
+
 		( 
 			<TK_COMMA> 
-			<TK_ID>			
+			var = <TK_ID>
+			{
+				numParam++;
+			}			
 		)* 
 
 	)?
 	<TK_RPAR>
 
+	// Insert into dirFunc current quadCounter. This is where functions starts. 
+	{
+		System.out.println( id.image + " starts at quadCounter: " + (quadCounter+1));
+
+		TablaFunciones.setFuncStart(id.image, quadCounter+1 );
+	}
+
 	Secuencia()
+	{
+		Cuadruplo quad = new Cuadruplo("endproc", "", "", "");
+		quadCounter++;
+		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+	}
+
+	
 }
+
+
+
+
+
+
+
+
+
 
 void Condicion() : {String op1, r;}
 {
@@ -520,7 +652,7 @@ void Arreglo() : {Token id; String op1, op2; int index = 0;}
 
 			cuadruplos.addElement(asignacion2); // Agregarlo a la queue de cuadruplos
 		}
-		
+
 		)*
 
 		<TK_RPAR>

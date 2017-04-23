@@ -39,45 +39,47 @@ public interface maguConstants {
   /** RegularExpression Id. */
   int TK_FUNC = 15;
   /** RegularExpression Id. */
-  int TK_EQ = 16;
+  int TK_MAIN = 16;
   /** RegularExpression Id. */
-  int TK_NE = 17;
+  int TK_EQ = 17;
   /** RegularExpression Id. */
-  int TK_EQT = 18;
+  int TK_NE = 18;
   /** RegularExpression Id. */
-  int TK_LT = 19;
+  int TK_EQT = 19;
   /** RegularExpression Id. */
-  int TK_GT = 20;
+  int TK_LT = 20;
   /** RegularExpression Id. */
-  int TK_LPAR = 21;
+  int TK_GT = 21;
   /** RegularExpression Id. */
-  int TK_RPAR = 22;
+  int TK_LPAR = 22;
   /** RegularExpression Id. */
-  int TK_LBRACKET = 23;
+  int TK_RPAR = 23;
   /** RegularExpression Id. */
-  int TK_RBRACKET = 24;
+  int TK_LBRACKET = 24;
   /** RegularExpression Id. */
-  int TK_LBRACE = 25;
+  int TK_RBRACKET = 25;
   /** RegularExpression Id. */
-  int TK_RBRACE = 26;
+  int TK_LBRACE = 26;
   /** RegularExpression Id. */
-  int TK_COMMA = 27;
+  int TK_RBRACE = 27;
   /** RegularExpression Id. */
-  int TK_PLUS = 28;
+  int TK_COMMA = 28;
   /** RegularExpression Id. */
-  int TK_MINUS = 29;
+  int TK_PLUS = 29;
   /** RegularExpression Id. */
-  int TK_MULT = 30;
+  int TK_MINUS = 30;
   /** RegularExpression Id. */
-  int TK_DIV = 31;
+  int TK_MULT = 31;
   /** RegularExpression Id. */
-  int TK_CTE_I = 32;
+  int TK_DIV = 32;
   /** RegularExpression Id. */
-  int TK_ID = 33;
+  int TK_CTE_I = 33;
   /** RegularExpression Id. */
-  int TK_STRING = 34;
+  int TK_ID = 34;
   /** RegularExpression Id. */
-  int QUOTE = 35;
+  int TK_STRING = 35;
+  /** RegularExpression Id. */
+  int QUOTE = 36;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -100,6 +102,7 @@ public interface maguConstants {
     "\"else\"",
     "\"arr\"",
     "\"func\"",
+    "\"main\"",
     "\"=\"",
     "\"<>\"",
     "\"==\"",

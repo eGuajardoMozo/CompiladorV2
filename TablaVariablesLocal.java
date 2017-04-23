@@ -12,6 +12,8 @@ import java.util.Set;
 
 class TablaVariablesLocal 
 {
+
+	/*
 	  
 	public static Hashtable tablaLocal = new Hashtable(); 	//Tabla que almacenara los tokens declarados
 	public static Hashtable tablaLocalVariables = new Hashtable();
@@ -54,6 +56,8 @@ class TablaVariablesLocal
 		}	
 		return key;
 	}
+
+	*/
  }
   
   

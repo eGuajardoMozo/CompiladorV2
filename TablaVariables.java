@@ -12,10 +12,25 @@ import java.util.Set;
 
 class TablaVariables
 {
-	  
-	public static Hashtable tabla = new Hashtable(); 	//Tabla que almacenara los tokens declarados
-	public static Hashtable tablaArr = new Hashtable();
-	  
+	/*
+	public Hashtable tabla;
+
+	// constructor de tabla de variables
+	public TablaVariables() {
+		tabla = new Hashtable();
+	}
+	*/
+
+	public static Hashtable tabla; 	//Tabla que almacenara los tokens declarados
+	public static Hashtable tablaArr;
+
+	public TablaVariables(){
+		tabla = new Hashtable();
+		tablaArr = new Hashtable();
+	}
+
+
+
 	// Agregar a la tabla de tokens el id que esta siendo declarado junto con su valor, o sobreescribir su valor si ya estaba en la tabla
 	public static void asignarValor(Token id, int valor) {	
 		tabla.put(id.image, valor);
@@ -76,6 +91,9 @@ class TablaVariables
 		}	
 		return key;
 	}
+
+
+
  }
   
   
