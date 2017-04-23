@@ -117,6 +117,7 @@ void Programa() : {String main;}
     	Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
     	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
     	MostrarCuadruplos();
+		MaquinaVirtual.Ejecucion(cuadruplos);
     }
 }
 
