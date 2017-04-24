@@ -217,8 +217,6 @@ void Func() : {String op1, op2, s, s2, index; Token id; Vector userString = new 
     	  			cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 
     	  			TablaStrings.addString( str, userString ); // Agregar vector de strings a tabla
-
-	    	  		TablaStrings.displayStringVector(str); // Desplegar string
     			}
 
     	| <TK_PENCILUP> <TK_LPAR> <TK_RPAR>

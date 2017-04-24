@@ -1,12 +1,21 @@
 
+func uno() {
+   a = 4,
+   b = 7
+}
+
 main()
 {
-    input(a),
-    i = 0,
-    while(i < a) {
-       f(i*10),
-       r(90),
-       i = i + 1
+   a = 3,
+
+
+    while(a < 10 - 3 * 1) {
+       
+       right(90),
+
+       forward(a*10),
+       a = a + 1
+
     }
 
 }

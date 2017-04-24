@@ -226,8 +226,6 @@ String str = "s" + currentString;
 
                                 TablaStrings.addString( str, userString ); // Agregar vector de strings a tabla
 
-                                TablaStrings.displayStringVector(str); // Desplegar string
-
       break;
       }
     case TK_PENCILUP:{
@@ -970,6 +968,20 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     finally { jj_save(7, xla); }
   }
 
+  private boolean jj_3_4()
+ {
+    if (jj_scan_token(TK_ID)) return true;
+    if (jj_scan_token(TK_EQ)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18()
+ {
+    if (jj_scan_token(TK_PENCILUP)) return true;
+    if (jj_scan_token(TK_LPAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_7()
  {
     if (jj_3R_11()) return true;
@@ -1113,23 +1125,9 @@ Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
     return false;
   }
 
-  private boolean jj_3_4()
- {
-    if (jj_scan_token(TK_ID)) return true;
-    if (jj_scan_token(TK_EQ)) return true;
-    return false;
-  }
-
   private boolean jj_3R_13()
  {
     if (jj_scan_token(TK_FORWARD)) return true;
-    if (jj_scan_token(TK_LPAR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18()
- {
-    if (jj_scan_token(TK_PENCILUP)) return true;
     if (jj_scan_token(TK_LPAR)) return true;
     return false;
   }

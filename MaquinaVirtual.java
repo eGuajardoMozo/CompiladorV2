@@ -100,6 +100,11 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 					funcOneParam(aux, "r");
 					break;
 
+				// PRINT
+				case "pr":
+					print(aux);
+					break;
+
 				// PENCILUP
 				case "pu":
 					penup();
@@ -292,8 +297,8 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 
 	// Para funciones con 1 parametro
 	public static void funcOneParam (Cuadruplo aux, String operador) {
+
 		int valor;
-		String op1;
 
 		if (isNumeric(aux.getOperador1())) { valor = Integer.parseInt(aux.getOperador1()); }
 		else { valor = TablaVariables.getValor(aux.getOperador1()); }
@@ -311,12 +316,38 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 			case "r":
 				right(valor);
 				break;
-
-			case "pr":
-			
-				break;
 		}	
 	}
+
+
+	// Print
+	public static void print (Cuadruplo aux) {
+
+		String str = aux.getOperador1(); // Nombre de la string en la tabla de strings
+		Vector stringVector = (Vector) TablaStrings.tablaStrings.get(str);  // El vector correspondiente a esa string
+		String s = ""; // String que se usará para el resultado, inicialmente vacia
+
+		// Para cada elemento en el vector
+		for (int i=0; i < stringVector.size(); i++) {
+
+			String vectorElement = (String) stringVector.get(i); // Convertir el elemento a string
+
+			// Si el primer caracter son comillas, quitar las comillas y concatenar al resultado
+			if ( vectorElement.substring(0,1).equals("\"")   ) {
+				s = s + vectorElement.substring(1, vectorElement.length() - 1);
+			}
+			// Si es variable, sacar su valor de TablaVariables, hacerlo string y concatenarlo
+			else {
+				s = s + String.valueOf(TablaVariables.getValor(vectorElement));
+			}
+		}
+
+		// Desplegar cuadro de dialogo con el mensaje
+		JOptionPane.showMessageDialog(null, s, "Message",JOptionPane.PLAIN_MESSAGE);
+	}
+
+
+
 
 	// Asignación de valores
 	public static void asignacion (Cuadruplo aux) {
