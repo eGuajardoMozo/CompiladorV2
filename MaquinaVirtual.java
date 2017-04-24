@@ -257,14 +257,15 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		{
 			temp = (jumpTo - i) - 1;
 			i = (i + temp) - 1;
+			
 		}
 		else if (jumpTo < i)
 		{
-			temp = (i - jumpTo) - 1;
-			i = (i - temp) - 1;
+			temp = (i - jumpTo) + 1;
+			i = i - temp;
 		}
-
 		return i;
+		
 	}
 
 	// Para función de input
