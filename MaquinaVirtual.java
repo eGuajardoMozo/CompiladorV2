@@ -71,7 +71,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 
 				// GOTO
 				case "Goto":
-					i = jump(aux, i);
+					i = jump(aux);
 					break;
 
 				// GOTOF
@@ -79,10 +79,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 					int bool = TablaVariables.getValor(aux.getOperador1());
 
 					//si la condicion si es falsa y se debe hacer el salto
-					if (bool == 0)
-					{
-						i = jump(aux, i);
-					}
+					if (bool == 0) { i = jump(aux); }
 					break;
 
 				// FORWARD
@@ -248,23 +245,10 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	}
 
 	// Para saltos
-	public static int jump (Cuadruplo aux, int i) {
+	public static int jump (Cuadruplo aux) {
 
 		int jumpTo = Integer.parseInt(aux.getResultado());
-		int temp = 0;
-
-		if (jumpTo > i)
-		{
-			temp = (jumpTo - i) - 1;
-			i = (i + temp) - 1;
-			
-		}
-		else if (jumpTo < i)
-		{
-			temp = (i - jumpTo) + 1;
-			i = i - temp;
-		}
-		return i;
+		return jumpTo - 2;
 		
 	}
 

@@ -6,16 +6,34 @@ func uno() {
 
 main()
 {
-   a = 3,
+   input(a),
+   input(b),
+   
+   if(a < b){
 
 
-    while(a < 10 - 3 * 1) {
+    while(a < b) {
+
+	if( a < 5 ) {
+           print(a + " es menor que 5")
+        },
+
+       print(a),
        
        right(90),
 
        forward(a*10),
-       a = a + 1
-
+       a = a + 1,
+       
+       while (b > 10) {
+           print(b + " es mayor que 10"),
+           curve(b*10, a*10),
+           b = b - 1
+       }
+    }
+   }
+   else {
+       print("A IS TOO BIG")
     }
 
 }
