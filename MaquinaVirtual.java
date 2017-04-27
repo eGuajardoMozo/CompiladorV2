@@ -16,6 +16,8 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 
 	public static void Ejecucion(Vector vector)
 	{	
+		int returnPoint = 0; // El punto al que regresa cuando termina una función
+
 		// Para cada cuadruplo en el vector
 		for (int i=0; i<vector.size(); i++)
 		{
@@ -80,6 +82,17 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 
 					//si la condicion si es falsa y se debe hacer el salto
 					if (bool == 0) { i = jump(aux); }
+					break;
+
+				// GOSUB
+				case "gosub":
+					returnPoint = i; // El punto a donde va a regresar cuando la función termine es el actual
+					i = jump(aux); // Jump al punto marcado por gosub
+					break;
+
+				// ENDPROC
+				case "endproc":
+					i = returnPoint;
 					break;
 
 				// FORWARD

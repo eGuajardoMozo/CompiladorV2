@@ -1,0 +1,20 @@
+func prueba()
+{
+	print("esta es una prueba"),
+	print("esta también"),
+	b = 40
+}
+
+main()
+{
+	a = 2,
+    while(a < 5) {
+		print("aqui va una ciclo"),
+		a = a + 1
+    },
+
+	prueba(),
+	print("salio de la funcion"),
+	print(b)
+
+}
