@@ -10,6 +10,8 @@ import java.util.*;
 
 public class MaquinaVirtual extends TurtleGraphicsWindow {
 
+	public static String contexto = "global"; // Inicialmente, las variables declaradas son globales.
+
 	public MaquinaVirtual() {
 		super( 600, 600 );
 	}
@@ -71,6 +73,14 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 					asignacion(aux);
 					break;
 
+				// MAIN
+				case "main":
+					i = jump(aux);
+					contexto = "main";
+
+					System.out.println("Contexto: " + contexto);
+					break;
+
 				// GOTO
 				case "Goto":
 					i = jump(aux);
@@ -78,7 +88,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 
 				// GOTOF
 				case "GotoF":
-					int bool = TablaVariables.getValor(aux.getOperador1());
+					int bool = Memoria.getValor(contexto, aux.getOperador1());
 
 					//si la condicion si es falsa y se debe hacer el salto
 					if (bool == 0) { i = jump(aux); }
@@ -88,11 +98,17 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 				case "gosub":
 					returnPoint = i; // El punto a donde va a regresar cuando la función termine es el actual
 					i = jump(aux); // Jump al punto marcado por gosub
+					contexto = aux.getOperador1(); // El nuevo contexto es el nombre de la función
+
+					System.out.println("Contexto: " + contexto);
 					break;
 
 				// ENDPROC
 				case "endproc":
 					i = returnPoint;
+					contexto = "main"; // Cuando la función termina, regresa el contexto a main
+
+					System.out.println("Contexto: " + contexto);
 					break;
 
 				// FORWARD
@@ -144,6 +160,11 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 				case "in":
 					input(aux);
 					break;
+
+				// ARR
+				case "arr":
+					declararArr(aux);
+					break;
 			}
 		}
 	}
@@ -163,88 +184,68 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	}
 
 
+	public static void declararArr(Cuadruplo aux){
+
+		int op2 = getValorOperador(aux.getOperador2());
+
+		// Declarar el arreglo
+		Memoria.declararArreglo(aux.getOperador1(), new int [op2]);
+	}
+
+
 	// Para funciones con 2 parametros
 	public static void funcTwoParam (Cuadruplo aux, String operador) {
 
 		int resultado, op1, op2;
+
 		String temp = aux.getResultado();
+		String str_op1 = aux.getOperador1();
+		String str_op2 = aux.getOperador2();
 
-		// Si el primer operador es constante
-		if (isNumeric(aux.getOperador1()))
-		{
-			op1 = Integer.parseInt(aux.getOperador1());
+		op1 = getValorOperador(str_op1);
+		op2 = getValorOperador(str_op2);
 
-			// Si el segundo operador es constante
-			if (isNumeric(aux.getOperador2()))
-			{
-				op2 = Integer.parseInt(aux.getOperador2());
-			}
-
-			// Si el segundo es variable
-			else
-			{
-				op2 = TablaVariables.getValor(aux.getOperador2());
-			}
-		}
-
-		// Si el primer operador es variable
-		else
-		{
-			op1 = TablaVariables.getValor(aux.getOperador1());
-
-			// Si el segundo es constante
-			if (isNumeric(aux.getOperador2()))
-			{
-				op2 = Integer.parseInt(aux.getOperador2());
-			}
-
-			// Si el segundo es variable
-			else
-			{
-				op2 = TablaVariables.getValor(aux.getOperador2());
-			}
-		}
 
 		// Hacer la operación dependiendo del operador mandado como parámetro
 		switch(operador) {
 			case "+":
 				resultado = op1 + op2;
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "-":
 				resultado = op1 - op2;
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "*":
 				resultado = op1 * op2;
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "/":
 				resultado = op1 / op2;
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "<>":
 				if (op1 != op2) { resultado = 1; } else { resultado = 0; }
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "==":
 				if (op1 == op2) { resultado = 1; } else { resultado = 0; }
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "<":
 				if (op1 < op2) { resultado = 1; } else { resultado = 0; }
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case ">":
 				if (op1 > op2) { resultado = 1; } else { resultado = 0; }
-				TablaVariables.asignarValor(temp, resultado);
+				Memoria.asignarValor(contexto, temp, resultado);
 				break;
 
 			case "m":
@@ -283,7 +284,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		else {
 			// Si es numérica asignarla, si no marcar error y salir
 			if (isNumeric(s)) {
-				TablaVariables.asignarValor(var,  Integer.parseInt( s ) );
+				Memoria.asignarValor(contexto, var,  Integer.parseInt( s ) );
 			}
 			else {
 				System.out.println("Valor invalido");
@@ -296,10 +297,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	// Para funciones con 1 parametro
 	public static void funcOneParam (Cuadruplo aux, String operador) {
 
-		int valor;
-
-		if (isNumeric(aux.getOperador1())) { valor = Integer.parseInt(aux.getOperador1()); }
-		else { valor = TablaVariables.getValor(aux.getOperador1()); }
+		int valor = getValorOperador(aux.getOperador1());
 
 		switch (operador) {
 
@@ -334,9 +332,9 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 			if ( vectorElement.substring(0,1).equals("\"")   ) {
 				s = s + vectorElement.substring(1, vectorElement.length() - 1);
 			}
-			// Si es variable, sacar su valor de TablaVariables, hacerlo string y concatenarlo
+			// Si no, obtener su valor, hacerlo string y concatenarlo
 			else {
-				s = s + String.valueOf(TablaVariables.getValor(vectorElement));
+				s = s + String.valueOf(getValorOperador(vectorElement));
 			}
 		}
 
@@ -346,22 +344,62 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 
 
 
+	// Dada una string, determina si es numérico, indice de arreglo o variable y regresa su valor
+	public static int getValorOperador(String op) {
+
+		int valor, indice;
+
+		// Si el string que se manda es numérico, hacer parse.
+		if (isNumeric(op)) {
+			valor = Integer.parseInt(op);	
+		}
+		else if ( op.indexOf("-") != -1) { // Si contiene un -, es indice de arreglo
+
+			int separador = op.indexOf("-");
+			String index = op.substring(separador+1); // El indice es todo despues del separador
+
+			op = op.substring(0,separador); // El nombre del arreglo es todo antes del separador
+
+			if (isNumeric(index)) { // Si el indice es numérico, hacer parse
+				indice = Integer.parseInt(index);	
+			}
+			else {
+				indice = getValorOperador(index); // Si no, llamar recursivamente
+			}
+
+			valor = Memoria.getValorArreglo(op, indice); // Sacar su valor de la tabla
+		}
+		else { // De lo contrario es variable, sacar el valor
+			valor = Memoria.getValor(contexto,op);
+		}
+		return valor;
+	}
+
+
+
 
 	// Asignación de valores
 	public static void asignacion (Cuadruplo aux) {
 
-		int valor;
+		String temp = aux.getResultado(); // La variable a la cual se va a asignar el valor
+		String op1 = aux.getOperador1();
+		int valor = getValorOperador(op1); // Valor del primer operador
 
-		//ALMACENAR EN TABLA DE VARIABLES RESULTADO
-		String temp = aux.getResultado();
-		if (isNumeric(aux.getOperador1())) {
-			valor = Integer.parseInt(aux.getOperador1());	
-		}
-		else {
-			valor = TablaVariables.getValor(aux.getOperador1());
-		}
 
-		TablaVariables.asignarValor(temp, valor);
+		if ( !(aux.getOperador2()).equals("") ) { // Si el segundo operador no está vacío la variable es un arreglo.
+
+
+			int indice = getValorOperador(aux.getOperador2());
+
+			//System.out.println("Se ha encontrado el arreglo " + temp + " con indice " + indice );
+
+			Memoria.asignarValorArreglo(temp, valor, indice); // Asignar valor a ese arreglo en ese indice
+
+			//System.out.println("Despues de la asigncion");
+		}
+		else { // Si no, está vacío y es variable. Asignarle el valor.
+			Memoria.asignarValor(contexto, temp, valor);
+		}
 	}
 
 }

@@ -39,8 +39,7 @@ class magu
 
 	int currentTemporal  = 1;
 	int currentString = 1;
-	int quadCounter = 0;
-	
+	int quadCounter = 0;	
 }
 PARSER_END(magu)
 
@@ -89,17 +88,17 @@ SKIP:
 	" "	| "\r\n" | "\t"
 }
 
-void Programa() : {String main;}
+void Programa() : { Memoria.addFunc("global"); } // Agrega la tabla de variables locales a memoria
 {   
     ( Asignacion() )*
     ( Arreglo() )*
 
     {
-		Cuadruplo mainQuad = new Cuadruplo("Goto", "", "", "");
+		Cuadruplo mainQuad = new Cuadruplo("main", "", "", "");
 		quadCounter++;
 		cuadruplos.addElement(mainQuad); // Agregarlo a la queue de cuadruplos
 
-		pJumps.push("" + (quadCounter-1));
+		pJumps.push("" + (quadCounter-1));	
 	}
 
     ( Definicion_Func() )*
@@ -107,9 +106,10 @@ void Programa() : {String main;}
     <TK_MAIN> <TK_LPAR> <TK_RPAR>
 
 	{
-		main = (String) pJumps.pop();
-		//System.out.println("Main starts at quadCounter: " + (quadCounter+1));
+		String main = (String) pJumps.pop();
 		Fill ( Integer.parseInt(main) , quadCounter);
+
+		Memoria.addFunc("main"); // Agrega la función main a memoria
 	}
 
     Secuencia()  <EOF>
@@ -261,7 +261,6 @@ void Func() : {String op1, op2, s, s2, index; Token id; Vector userString = new 
 
 
 
-
 void Funcion() : {Token id; int paramCounter = 0, start; String argument;} 
 {	
     id = <TK_ID>
@@ -310,7 +309,7 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
 
 
     	// Generate gosub, procname, address where it starts
-    	start = TablaFunciones.getFuncStart(id.image);
+    	start = Memoria.getFuncStart(id.image);
 
     	Cuadruplo gosub = new Cuadruplo("gosub",id.image,"", "" + start );
 	    quadCounter++;
@@ -319,14 +318,9 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
 }
 
 
-
-
-
-
 void Exp() : {}
 {
 	Termino()
-	PendingOperator("+","-")
 
 	( 
 		<TK_PLUS> 
@@ -419,9 +413,6 @@ void Asignacion() : {String op1, op2; Token r;}
 		Cuadruplo quad = new Cuadruplo("=", op1, "", r.image);
 		quadCounter++;
 
-		//System.out.println("quadCounter: " + quadCounter);
-		//Cuadruplo.displayCuadruplo(quad); 
-
 		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 
 	}
@@ -434,9 +425,6 @@ void Asignacion() : {String op1, op2; Token r;}
 
 		Cuadruplo quad = new Cuadruplo("=", op1, op2, r.image);
 		quadCounter++;
-
-		//System.out.println("quadCounter: " + quadCounter);
-		//Cuadruplo.displayCuadruplo(quad); 
 
 		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 
@@ -533,7 +521,7 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 	<TK_FUNC> id = <TK_ID>
 	{
 		// 1.- Insert func name into DirFunc table
-		TablaFunciones.addFunc(id.image);
+		Memoria.addFunc(id.image);
 
 	}
 
@@ -564,9 +552,7 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 
 	// Insert into dirFunc current quadCounter. This is where functions starts. 
 	{
-		//System.out.println( id.image + " starts at quadCounter: " + (quadCounter+1));
-
-		TablaFunciones.setFuncStart(id.image, quadCounter+1 );
+		Memoria.setFuncStart(id.image, quadCounter+1 );
 	}
 
 	Secuencia()
@@ -576,15 +562,7 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 	}
 
-	
 }
-
-
-
-
-
-
-
 
 
 
@@ -598,10 +576,6 @@ void Condicion() : {String op1, r;}
 		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "", "");
 		quadCounter++;
 
-		//System.out.println("quadCounter: " + quadCounter);
-
-		//Cuadruplo.displayCuadruplo(quadTrue);
-
 		cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
 
 		pJumps.push("" + (quadCounter-1));
@@ -613,30 +587,18 @@ void Condicion() : {String op1, r;}
 		Cuadruplo quadFalse = new Cuadruplo("Goto", "", "", "");
 		quadCounter++;
 
-		//System.out.println("quadCounter: " + quadCounter);
-
-
-		//Cuadruplo.displayCuadruplo(quadFalse);
-
 		cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
 
 		String falso = (String)pJumps.pop();
 		pJumps.push("" + (quadCounter-1));
-
-		//System.out.println("falso: " + falso);
-
-
 		Fill ( Integer.parseInt(falso), quadCounter);
 
 	}
-
 		Secuencia() )?
 
-	// 2, aquí termina el if. A dónde brinca?
+	// Fin del if-else
 	{
 		String end = (String)pJumps.pop();
-
-		//System.out.println("end: " + end);
 
 		Fill ( Integer.parseInt(end), quadCounter);
 	}
@@ -649,11 +611,6 @@ void Arreglo() : {Token id; String op1, op2; int index = 0;}
     	{
     		op1 = id.image;
 	  		op2 = (String)pOperands.pop();
-
-	  		//System.out.println("El op2 es: " + op2);
-
-	  		//size = (int)pOperands.pop();
-	  		//TablaVariables.declararArreglo(var, new int[size]);
 
 	  		Cuadruplo declaracion = new Cuadruplo("arr",op1,op2,"");
 	  		quadCounter++;
@@ -726,15 +683,11 @@ void PendingOperator(String operator1, String operator2) : {String o, op1,  op2,
 
 				currentTemporal++;
 
-				//System.out.println( r );
-
 				// Crear un cuadruplo y meterlos
 				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
 				quadCounter++;
 
 		    	pOperands.push(r);
-
-		    	//Cuadruplo.displayCuadruplo(quad);
 
 		    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 		    }
@@ -761,15 +714,11 @@ void PendingOperatorBool() : {String o, op1,  op2, r;}
 
 				currentTemporal++;
 
-				//System.out.println( r );
-
 				// Crear un cuadruplo y meterlos
 				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
 				quadCounter++;
 
 		    	pOperands.push(r);
-
-		    	//Cuadruplo.displayCuadruplo(quad);
 
 		    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
 		    }
@@ -785,7 +734,6 @@ void MostrarCuadruplos() : {}
 		for (int i=0; i < cuadruplos.size(); i++) {
 			System.out.print(i+1 + ": \t");
 			Cuadruplo.displayCuadruplo((Cuadruplo)cuadruplos.get(i));
-			
 		}
 	}
 }
@@ -796,9 +744,5 @@ void Fill(int numQuad, int jump) : {}
 		Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
 
 		quad.resultado = "" + (jump+1);
-
-		//System.out.print("Se acaba de hacer un fill: ");
-		//Cuadruplo.displayCuadruplo(quad);
-
 	}
 }
