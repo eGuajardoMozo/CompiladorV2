@@ -301,10 +301,13 @@ Cuadruplo quad = new Cuadruplo("h","","","");
 
   final public void Funcion() throws ParseException {Token id; int paramCounter = 0, start; String argument;
     id = jj_consume_token(TK_ID);
-
+// Si no existe una función con este id, marcar error y salir
+        if ( !Memoria.contextos.containsKey(id.image) ) {
+                System.out.println("ERROR: La funcion " + id.image + " no existe");
+                        System.exit(0);
+        }
     jj_consume_token(TK_LPAR);
-// Generate function call quad. ERA size equivalent, not necessary
-
+// Crear cuadruplo que marca la llamada a una función
         Cuadruplo func = new Cuadruplo("func",id.image,"","");
         quadCounter++;
         cuadruplos.addElement(func); // Agregarlo a la queue de cuadruplos
@@ -348,10 +351,7 @@ argument = (String)pOperands.pop();
       ;
     }
     jj_consume_token(TK_RPAR);
-// Verify that paramCounter is the same as the number of params in the func definition
-
-
-        // Generate gosub, procname, address where it starts
+// Generar gosub con el nombre de la función y el cuadruplo donde empieza
         start = Memoria.getFuncStart(id.image);
 
         Cuadruplo gosub = new Cuadruplo("gosub",id.image,"", "" + start );
@@ -657,14 +657,15 @@ String end = (String)pJumps.pop();
   final public void Definicion_Func() throws ParseException {Token id, var; int numParam = 0;
     jj_consume_token(TK_FUNC);
     id = jj_consume_token(TK_ID);
-// 1.- Insert func name into DirFunc table
-                Memoria.addFunc(id.image);
+Memoria.addFunc(id.image); // Se agrega la función a memoria
+
     jj_consume_token(TK_LPAR);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case TK_ID:{
-      // 2- Insert every parameter into function's VarTable
+      // Crea variable param1, param2... cuyo valor es el nombre dado por el usuario
                       var = jj_consume_token(TK_ID);
 numParam++;
+                        Memoria.asignarParametro(id.image, "param" + numParam, var.image);
       label_9:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -679,6 +680,7 @@ numParam++;
         jj_consume_token(TK_COMMA);
         var = jj_consume_token(TK_ID);
 numParam++;
+                                Memoria.asignarParametro(id.image, "param" + numParam, var.image);
       }
       break;
       }
@@ -851,16 +853,18 @@ op1 = (String)pOperands.pop(); // Valor que se va a asignar
                 }
   }
 
+// Hace print a los cuadruplos
   final public void MostrarCuadruplos() throws ParseException {
 for (int i=0; i < cuadruplos.size(); i++) {
                         System.out.print(i+1 + ": \u005ct");
                         Cuadruplo.displayCuadruplo((Cuadruplo)cuadruplos.get(i));
                 }
+                System.out.print("\u005cn");
   }
 
+// Llena el campo de jump de un cuadruplo
   final public void Fill(int numQuad, int jump) throws ParseException {
 Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
-
                 quad.resultado = "" + (jump+1);
   }
 

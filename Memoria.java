@@ -9,28 +9,14 @@
 import java.util.Hashtable;
 import java.lang.String;
 
-class Memoria //extends TablaVariables
+class Memoria
 {
-	public static Hashtable contextos = new Hashtable(); // Tabla que almacena los contextos: cada función de usuario, main y global.
+	// Tabla que almacena los contextos: cada función de usuario, main y global.
+	public static Hashtable contextos = new Hashtable(); 
 
-	// Agrega una nueva función a la tabla y le asigna una tabla de variables locales
-	public static void addFunc(String funcName) {
-		Hashtable varLocales = new Hashtable();
-		contextos.put(funcName, varLocales);
-	}
 
-	// Define para la función dada el cuadruplo donde inicia
-	public static void setFuncStart(String funcName, int quadCounter){
-		Hashtable varLocales = (Hashtable) contextos.get(funcName);
-		varLocales.put( "funcStart" ,  quadCounter );
-	}
+	// ----------- PARA VARIABLES  ----------- //	
 
-	// Regresa el cuadruplo donde inicia la función
-	public static int getFuncStart(String funcName){
-		Hashtable varLocales = (Hashtable) contextos.get(funcName);
-		int start = (Integer) varLocales.get("funcStart");
-		return start;
-	}
 
 	// Dado un contexto, un id y un valor, crea la variable correspondiente o la sobreescribe si ya existía
 	public static void asignarValor(String contexto, String id, int valor) {
@@ -41,6 +27,37 @@ class Memoria //extends TablaVariables
 		System.out.println("Se ha asignado " + id + " = " +  (Integer) varLocales.get(id) +
 			" en el contexto " + contexto);
 	}
+
+	// Obtener el valor de una variable. Primero busca en el contexto local y si no existe checa en el global.
+	public static int getValor(String contexto, String id){
+
+		Hashtable varLocales = (Hashtable) contextos.get(contexto); // Tabla de variables de la función o contexto
+
+		if(varLocales.containsKey(id)) { // Si la variable cuyo valor se quiere obtener existe en este contexto...
+			return (Integer)varLocales.get(id);	// Regresar su valor
+		}
+		else { // Si no está en las locales
+
+			Hashtable varGlobales = (Hashtable) contextos.get("global"); // Buscar en las variables globales
+
+			if(varGlobales.containsKey(id)) { // Si la variable existe en las variables globales...
+				return (Integer)varGlobales.get(id);	// Regresar su valor
+			}
+			else { // Si tampoco existe, mostrar error y terminar la ejecución del programa
+				System.out.println("ERROR: La variable " + id + " no existe");
+				System.exit(0);
+
+				return 0;
+			}
+		}
+	}
+
+
+
+
+
+
+	// ----------- PARA ARREGLOS  ----------- //
 
 	// Agregar un nuevo arreglo a la tabla de variables. Su id es la key y el arreglo mandado como parametro es su valor
 	public static void declararArreglo(String id, int[] arr) {	
@@ -70,33 +87,61 @@ class Memoria //extends TablaVariables
 		return arreglo[indice];
 	}
 
-	// Obtener el valor de una variable. Primero busca en el contexto local y si no existe checa en el global.
-	public static int getValor(String contexto, String id){
 
-		Hashtable varLocales = (Hashtable) contextos.get(contexto); // Tabla de variables de la función o contexto
 
-		if(varLocales.containsKey(id)) { // Si la variable cuyo valor se quiere obtener existe en este contexto...
-			return (Integer)varLocales.get(id);	// Regresar su valor
+
+
+
+	// ----------- PARA FUNCIONES  ----------- //
+
+
+	// Agrega una nueva función a la tabla y le asigna una tabla de variables locales
+	public static void addFunc(String funcName) {
+		Hashtable varLocales = new Hashtable();
+		contextos.put(funcName, varLocales);
+	}
+
+	// Regresa el cuadruplo donde inicia la función
+	public static int getFuncStart(String funcName){
+		Hashtable varLocales = (Hashtable) contextos.get(funcName);
+		int start = (Integer) varLocales.get("funcStart");
+		return start;
+	}
+
+	// Define para la función dada el cuadruplo donde inicia
+	public static void setFuncStart(String funcName, int quadCounter){
+		Hashtable varLocales = (Hashtable) contextos.get(funcName);
+		varLocales.put( "funcStart" ,  quadCounter );
+	}
+
+	// Dada una funcion, el numero de parámetro y el nombre dado por el usuario, asigna el
+	// nombre al parámetro que corresponde. Esta función se llama desde el parse.
+	public static void asignarParametro(String funcName, String numParam, String nomParam) {
+
+		Hashtable varLocales = (Hashtable) contextos.get(funcName); // Tabla de variables de la función
+		varLocales.put( numParam, nomParam ); // Dentro de la tabla, asigna el nombre del parametro
+
+		System.out.println("Se ha asignado " + numParam + " = " +  varLocales.get(numParam) +
+			" en la funcion " + funcName);
+	}
+
+	// Dada una funcion y un numero de parámetro, regresa el nombre que el usuario dio a ese parámetro
+	public static String getNombreParametro(String contexto, String numParam) {
+
+		Hashtable varLocales = (Hashtable) contextos.get(contexto); // Tabla de variables de la función
+
+		if(varLocales.containsKey(numParam)) { // Si el parametro existe...
+			return (String)varLocales.get(numParam);	// Regresar el nombre que el usuario le dio
 		}
-		else { // Si no está en las locales
+		else { // Si el parámetro no existe, mostrar error y salir
+			System.out.println("ERROR: El parametro " + numParam + " no existe");
+			System.exit(0);
 
-			Hashtable varGlobales = (Hashtable) contextos.get("global"); // Buscar en las variables globales
-
-			if(varGlobales.containsKey(id)) { // Si la variable existe en las variables globales...
-				return (Integer)varGlobales.get(id);	// Regresar su valor
-			}
-			else { // Si tampoco existe, mostrar error y terminar la ejecución del programa
-				System.out.println("ERROR: La variable " + id + " no existe");
-				System.exit(0);
-
-				return 0;
-			}
+			return "";
 		}
 	}
 
 
-
-	
  }
   
   

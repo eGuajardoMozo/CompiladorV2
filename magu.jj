@@ -266,14 +266,17 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
     id = <TK_ID>
 
     {
-    	// Verify that a function with this id exists
+    	// Si no existe una función con este id, marcar error y salir
+    	if ( !Memoria.contextos.containsKey(id.image) ) {
+    		System.out.println("ERROR: La funcion " + id.image + " no existe");
+			System.exit(0);
+    	}
     } 
 
 
     <TK_LPAR> 
     {
-    	// Generate function call quad. ERA size equivalent, not necessary
-    	
+    	// Crear cuadruplo que marca la llamada a una función
     	Cuadruplo func = new Cuadruplo("func",id.image,"","");
     	quadCounter++;
     	cuadruplos.addElement(func); // Agregarlo a la queue de cuadruplos
@@ -305,10 +308,7 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
 
     <TK_RPAR>
     {
-    	// Verify that paramCounter is the same as the number of params in the func definition
-
-
-    	// Generate gosub, procname, address where it starts
+    	// Generar gosub con el nombre de la función y el cuadruplo donde empieza
     	start = Memoria.getFuncStart(id.image);
 
     	Cuadruplo gosub = new Cuadruplo("gosub",id.image,"", "" + start );
@@ -520,23 +520,16 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 {
 	<TK_FUNC> id = <TK_ID>
 	{
-		// 1.- Insert func name into DirFunc table
-		Memoria.addFunc(id.image);
-
+		Memoria.addFunc(id.image); // Se agrega la función a memoria
 	}
 
-	
-	// Insert into dirFunc, num of parameters defined.
-
-	// Insert into dirFunc, num of local variables defined (?)
-
-	
 	<TK_LPAR>
 	( 
-		// 2- Insert every parameter into function's VarTable
+		// Crea variable param1, param2... cuyo valor es el nombre dado por el usuario
 		var = <TK_ID>
 		{
 			numParam++;
+			Memoria.asignarParametro(id.image, "param" + numParam, var.image);
 		}
 
 		( 
@@ -544,13 +537,14 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 			var = <TK_ID>
 			{
 				numParam++;
+				Memoria.asignarParametro(id.image, "param" + numParam, var.image);
 			}			
 		)* 
 
 	)?
 	<TK_RPAR>
 
-	// Insert into dirFunc current quadCounter. This is where functions starts. 
+	// Se agrega el punto de inicio de la función 
 	{
 		Memoria.setFuncStart(id.image, quadCounter+1 );
 	}
@@ -726,8 +720,7 @@ void PendingOperatorBool() : {String o, op1,  op2, r;}
 	}
 }
 
-
-
+// Hace print a los cuadruplos
 void MostrarCuadruplos() : {}
 {
 	{
@@ -735,14 +728,15 @@ void MostrarCuadruplos() : {}
 			System.out.print(i+1 + ": \t");
 			Cuadruplo.displayCuadruplo((Cuadruplo)cuadruplos.get(i));
 		}
+		System.out.print("\n");
 	}
 }
 
+// Llena el campo de jump de un cuadruplo
 void Fill(int numQuad, int jump) : {}
 {
 	{
 		Cuadruplo quad = (Cuadruplo)cuadruplos.get(numQuad);
-
 		quad.resultado = "" + (jump+1);
 	}
 }

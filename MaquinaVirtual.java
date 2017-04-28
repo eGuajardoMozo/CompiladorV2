@@ -10,7 +10,12 @@ import java.util.*;
 
 public class MaquinaVirtual extends TurtleGraphicsWindow {
 
+
 	public static String contexto = "global"; // Inicialmente, las variables declaradas son globales.
+	public static String contextoFuncion = "";
+
+	public static Stack pContextos = new Stack();	// Stack para contextos. Se usa cuando una función llama a otra-
+	public static Stack pReturnPoints = new Stack(); // Stack de puntos de retorno. Para cuando una función llama a otra-
 
 	public MaquinaVirtual() {
 		super( 600, 600 );
@@ -23,9 +28,10 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		// Para cada cuadruplo en el vector
 		for (int i=0; i<vector.size(); i++)
 		{
-			Cuadruplo aux = (Cuadruplo)vector.get(i);
-			String operador = aux.getOperador();
+			Cuadruplo aux = (Cuadruplo)vector.get(i);	// aux es el cuadruplo actual
+			String operador = aux.getOperador();		// operador o funcion del cuadruplo
 			
+			// Dependiendo del operador, ejecuta la función correspondiente
 			switch (operador) {
 
 				// SUMA
@@ -78,7 +84,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 					i = jump(aux);
 					contexto = "main";
 
-					System.out.println("Contexto: " + contexto);
+					System.out.println("\n" + "Contexto: " + contexto);
 					break;
 
 				// GOTO
@@ -98,17 +104,37 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 				case "gosub":
 					returnPoint = i; // El punto a donde va a regresar cuando la función termine es el actual
 					i = jump(aux); // Jump al punto marcado por gosub
+
+					pContextos.push(contexto); 			// Mete el contexto actual en la pila
+					pReturnPoints.push(returnPoint); 	// Mete el punto de retorno a la pila
+
+					System.out.print("\n" + "Contexto: " + contexto);
+
 					contexto = aux.getOperador1(); // El nuevo contexto es el nombre de la función
 
-					System.out.println("Contexto: " + contexto);
+					System.out.println(" > " + contexto);
 					break;
 
 				// ENDPROC
 				case "endproc":
-					i = returnPoint;
-					contexto = "main"; // Cuando la función termina, regresa el contexto a main
 
-					System.out.println("Contexto: " + contexto);
+					i = (int) pReturnPoints.pop();	// Ya terminó una función. El punto de retorno se saca del stack
+					
+					System.out.print("\n" + "Contexto: " + contexto);
+
+					contexto = (String) pContextos.pop(); // El nuevo contexto es lo que este en el tope de la pila
+					
+					System.out.println(" > " + contexto);
+					break;
+
+				// FUNC
+				case "func":
+					contextoFuncion = aux.getOperador1(); // Definir el contexto de la función
+					break;
+
+				// PARAM
+				case "param":
+					setParam(aux);
 					break;
 
 				// FORWARD
@@ -183,7 +209,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		return true;  
 	}
 
-
+	// Declara un arreglo
 	public static void declararArr(Cuadruplo aux){
 
 		int op2 = getValorOperador(aux.getOperador2());
@@ -343,7 +369,6 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	}
 
 
-
 	// Dada una string, determina si es numérico, indice de arreglo o variable y regresa su valor
 	public static int getValorOperador(String op) {
 
@@ -376,6 +401,17 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	}
 
 
+	// Definición de parametro
+	public static void setParam (Cuadruplo aux) {
+
+		String str_op = aux.getOperador1();
+		int op = getValorOperador(str_op); // El valor de la variable que se asignará al parámetro
+
+		String numParam = aux.getResultado(); // El parámetro al cual se asignará el valor
+		String nombreParam = Memoria.getNombreParametro(contextoFuncion, numParam); // Nombre que el usuario dio al parametro
+
+		Memoria.asignarValor(contextoFuncion, nombreParam, op);
+	}
 
 
 	// Asignación de valores
@@ -385,17 +421,9 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		String op1 = aux.getOperador1();
 		int valor = getValorOperador(op1); // Valor del primer operador
 
-
 		if ( !(aux.getOperador2()).equals("") ) { // Si el segundo operador no está vacío la variable es un arreglo.
-
-
 			int indice = getValorOperador(aux.getOperador2());
-
-			//System.out.println("Se ha encontrado el arreglo " + temp + " con indice " + indice );
-
 			Memoria.asignarValorArreglo(temp, valor, indice); // Asignar valor a ese arreglo en ese indice
-
-			//System.out.println("Despues de la asigncion");
 		}
 		else { // Si no, está vacío y es variable. Asignarle el valor.
 			Memoria.asignarValor(contexto, temp, valor);
