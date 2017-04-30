@@ -22,7 +22,7 @@ main()
 {
    b = 10,
    d  = b * c,
-   out(b, d),
+   out(d),
 
    a = 2
 

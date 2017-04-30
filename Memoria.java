@@ -8,6 +8,7 @@
 
 import java.util.Hashtable;
 import java.lang.String;
+import java.io.*;
 
 class Memoria
 {
@@ -74,9 +75,19 @@ class Memoria
 		Hashtable varLocales = (Hashtable) contextos.get("global"); // Tabla de variables de la función o contexto
 
 		int[] arreglo = (int[])varLocales.get(id); // Arreglo correspondiente al id mandado como parámetro
-		arreglo[indice] = valor; // Asigna el valor al indice del arreglo correspondiente
+				
+		//si se pide un indice out of bounds
+		if (indice >= arreglo.length)
+		{
+			System.out.println("ERROR: El arreglo " + id + " no tiene el indice " + indice);
+			System.exit(0);
+		}
+		else
+		{
+			arreglo[indice] = valor; // Asigna el valor al indice del arreglo correspondiente
 		
-		System.out.println("Se ha asignado " + id + "[" + indice + "] = " + getValorArreglo(id, indice));
+			System.out.println("Se ha asignado " + id + "[" + indice + "] = " + getValorArreglo(id, indice));
+		}
 	}
 
 	// Se obtiene el valor de un arreglo dado su indice
@@ -84,7 +95,9 @@ class Memoria
 		Hashtable varLocales = (Hashtable) contextos.get("global");
 
 		int[] arreglo = (int[])varLocales.get(id);
+		
 		return arreglo[indice];
+			
 	}
 
 
