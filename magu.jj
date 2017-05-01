@@ -11,7 +11,11 @@ options {
 
 PARSER_BEGIN(magu)
 
+import java.lang.String;
 import java.util.*;
+import java.io.FileNotFoundException;
+import javax.swing.*; 
+import java.io.*;
 
 class magu
 {
@@ -39,7 +43,7 @@ class magu
 
 	int currentTemporal  = 1;
 	int currentString = 1;
-	int quadCounter = 0;	
+	int quadCounter = 0;
 }
 PARSER_END(magu)
 
@@ -88,15 +92,16 @@ SKIP:
 	" "	| "\r\n" | "\t"
 }
 
-void Programa() : { Memoria.addFunc("global"); } // Agrega la tabla de variables locales a memoria
+void Programa() : {}
 {   
     ( Asignacion() )*
     ( Arreglo() )*
 
     {
-		Cuadruplo mainQuad = new Cuadruplo("main", "", "", "");
+    	// Crear cuadruplo
+		Cuadruplo mainQuad = new Cuadruplo("main", "_", "_", "_");
 		quadCounter++;
-		cuadruplos.addElement(mainQuad); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(mainQuad);
 
 		pJumps.push("" + (quadCounter-1));	
 	}
@@ -108,56 +113,56 @@ void Programa() : { Memoria.addFunc("global"); } // Agrega la tabla de variables
 	{
 		String main = (String) pJumps.pop();
 		Fill ( Integer.parseInt(main) , quadCounter);
-
-		Memoria.addFunc("main"); // Agrega la función main a memoria
 	}
 
     Secuencia()  <EOF>
 
     {
-    	Cuadruplo quad = new Cuadruplo("end","","",""); // Fin del codigo
-    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
-    	MostrarCuadruplos();
-
-    	MaquinaVirtual mv = new MaquinaVirtual();
-		mv.Ejecucion(cuadruplos);
+    	// Crear cuadruplo
+    	Cuadruplo quad = new Cuadruplo("end","_","_","_"); // Fin del codigo
+    	cuadruplos.addElement(quad);
+    	GuardarCuadruplos(); // Guardarlos en archivo
     }
 }
 
-void Func() : {String op1, op2, s, s2, index; Token id; Vector userString = new Vector(1);}
+void Func() : {String op1, op2, s, s2, index; Token id; String userString = "";}
 {
     ( 
     	  <TK_FORWARD> <TK_LPAR> Exp() <TK_RPAR> 
     	  	{
     	  		op1 = (String)pOperands.pop();
 
-    	  		Cuadruplo quad = new Cuadruplo("f",op1,"","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("f",op1,"_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_LEFT> <TK_LPAR> Exp() <TK_RPAR>
     	  	{
     	  		op1 = (String)pOperands.pop();
 
-    	  		Cuadruplo quad = new Cuadruplo("l",op1,"","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("l",op1,"_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_RIGHT> <TK_LPAR>  Exp() <TK_RPAR>
     	  	{
     	  		op1 = (String)pOperands.pop();
 
-    	  		Cuadruplo quad = new Cuadruplo("r",op1,"","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("r",op1,"_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_INPUT> <TK_LPAR> id = <TK_ID> <TK_RPAR>
     	  	{
     	  		op1 = id.image;
 
-    	  		Cuadruplo quad = new Cuadruplo("in",op1,"","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("in",op1,"_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
 	    	
     	| <TK_PRINT> <TK_LPAR> 
@@ -167,19 +172,19 @@ void Func() : {String op1, op2, s, s2, index; Token id; Vector userString = new 
     				{
     					index = (String)pOperands.pop();
     					s =  id.image + "-" + index;
-    					userString.addElement(s);
+    					userString = userString + s + ";";
     				}
     			|
     				id = <TK_ID>
     				{
     					s = id.image;
-    					userString.addElement(s);
+    					userString = userString + s + ";";
     				}			
     			|
     				id = <TK_STRING>
     				{
     					s = id.image;
-    					userString.addElement(s);
+    					userString = userString + s + ";";
     				} 
     			)
 
@@ -190,70 +195,72 @@ void Func() : {String op1, op2, s, s2, index; Token id; Vector userString = new 
     			  		{ 
     			  			index = (String)pOperands.pop();
     			  			s = id.image + "-" + index;
-    			  			userString.addElement(s);
+    			  			userString = userString + s + ";";
     			  		}
     			  	|
     					id = <TK_ID>
     					{
     						s = id.image;
-    						userString.addElement(s); 
+    						userString = userString + s + ";"; 
     					}
     				|
     					id = <TK_STRING>
     					{
     						s = id.image;
-    						userString.addElement(s);
+    						userString = userString + s + ";";
     					}  
     				) 
     			)*
     			<TK_RPAR>
 
     			{
-    				String str = "s" + currentString;
-
-    				Cuadruplo quad = new Cuadruplo("pr", str ,"","");
+    				// Crear cuadruplo
+    				Cuadruplo quad = new Cuadruplo("pr", userString ,"_","_");
     				currentString++;
     	  			quadCounter++;
-    	  			cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
-
-    	  			TablaStrings.addString( str, userString ); // Agregar vector de strings a tabla
+    	  			cuadruplos.addElement(quad);
     			}
 
     	| <TK_PENCILUP> <TK_LPAR> <TK_RPAR>
     	  	{
-    	  		Cuadruplo quad = new Cuadruplo("pu","","","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("pu","_","_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_PENCILDOWN> <TK_LPAR> <TK_RPAR>
     	  	{
-    	  		Cuadruplo quad = new Cuadruplo("pd","","","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("pd","_","_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_MOVE> <TK_LPAR> Exp() <TK_COMMA> Exp() <TK_RPAR>
     	  	{
     	  		op2 = (String)pOperands.pop();
     	  		op1 = (String)pOperands.pop();
 
-    	  		Cuadruplo quad = new Cuadruplo("m",op1,op2,"");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("m",op1,op2,"_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_CURVE> <TK_LPAR> Exp() <TK_COMMA> Exp() <TK_RPAR>
     	  	{
     	  		op2 = (String)pOperands.pop();
     	  		op1 = (String)pOperands.pop();
 
-    	  		Cuadruplo quad = new Cuadruplo("cv",op1,op2,"");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("cv",op1,op2,"_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     	| <TK_HOME> <TK_LPAR> <TK_RPAR>
     	  	{
-    	  		Cuadruplo quad = new Cuadruplo("h","","","");
+    	  		// Crear cuadruplo
+    	  		Cuadruplo quad = new Cuadruplo("h","_","_","_");
     	  		quadCounter++;
-    	  		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    	  		cuadruplos.addElement(quad);
 	    	}
     )   
 }  
@@ -277,9 +284,9 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
     <TK_LPAR> 
     {
     	// Crear cuadruplo que marca la llamada a una función
-    	Cuadruplo func = new Cuadruplo("func",id.image,"","");
+    	Cuadruplo func = new Cuadruplo("func",id.image,"_","_");
     	quadCounter++;
-    	cuadruplos.addElement(func); // Agregarlo a la queue de cuadruplos
+    	cuadruplos.addElement(func);
     }
 
     // ARGUMENTS
@@ -289,9 +296,10 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
     		paramCounter++;
     		argument = (String)pOperands.pop();
 
-    		Cuadruplo quad = new Cuadruplo("param",argument,"","param" + paramCounter);
+    		// Crear cuadruplo
+    		Cuadruplo quad = new Cuadruplo("param",argument,"_","param" + paramCounter);
     		quadCounter++;
-    		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+    		cuadruplos.addElement(quad);
     	}
 
     	( <TK_COMMA> {paramCounter++;}
@@ -299,9 +307,10 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
     		{
 	    		argument = (String)pOperands.pop();
 
-	    		Cuadruplo quad2 = new Cuadruplo("param",argument,"","param" + paramCounter);
+	    		// Crear cuadruplo
+	    		Cuadruplo quad2 = new Cuadruplo("param",argument,"_","param" + paramCounter);
 	    		quadCounter++;
-	    		cuadruplos.addElement(quad2); // Agregarlo a la queue de cuadruplos
+	    		cuadruplos.addElement(quad2);
     		}
     	)* 
     )? 
@@ -311,9 +320,10 @@ void Funcion() : {Token id; int paramCounter = 0, start; String argument;}
     	// Generar gosub con el nombre de la función y el cuadruplo donde empieza
     	start = Memoria.getFuncStart(id.image);
 
-    	Cuadruplo gosub = new Cuadruplo("gosub",id.image,"", "" + start );
+    	// Crear cuadruplo
+    	Cuadruplo gosub = new Cuadruplo("gosub",id.image,"_", "" + start );
 	    quadCounter++;
-	    cuadruplos.addElement(gosub); // Agregarlo a la queue de cuadruplos
+	    cuadruplos.addElement(gosub);
     }
 }
 
@@ -410,10 +420,10 @@ void Asignacion() : {String op1, op2; Token r;}
 	{
 		op1 = (String)pOperands.pop();
 
-		Cuadruplo quad = new Cuadruplo("=", op1, "", r.image);
+		// Crear cuadruplo
+		Cuadruplo quad = new Cuadruplo("=", op1, "_", r.image);
 		quadCounter++;
-
-		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(quad);
 
 	}
 	|
@@ -423,10 +433,10 @@ void Asignacion() : {String op1, op2; Token r;}
 		op1 = (String)pOperands.pop(); // Valor que se va a asignar
 		op2 = (String)pOperands.pop(); // Indice del arreglo
 
+		// Crear cuadruplo
 		Cuadruplo quad = new Cuadruplo("=", op1, op2, r.image);
 		quadCounter++;
-
-		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(quad);
 
 	}
 }
@@ -490,21 +500,22 @@ void While() : {String op1, r;}
 	{
 		op1 = (String)pOperands.pop();
 
-		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "", "");
+		// Crear cuadruplo
+		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "_", "_");
 		quadCounter++;
-		cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(quadTrue);
 		pJumps.push("" + (quadCounter-1));
 	}
 
 	Secuencia()
 	{
-
 		String end = (String)pJumps.pop();
 		String retorno = (String)pJumps.pop();
 
-		Cuadruplo quadFalse = new Cuadruplo("Goto", "", "", retorno);
+		// Crear cuadruplo
+		Cuadruplo quadFalse = new Cuadruplo("Goto", "_", "_", retorno);
 		quadCounter++;
-		cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(quadFalse);
 
 		Fill ( Integer.parseInt(end), quadCounter);
 	}
@@ -521,6 +532,11 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 	<TK_FUNC> id = <TK_ID>
 	{
 		Memoria.addFunc(id.image); // Se agrega la función a memoria
+
+		// Crear cuadruplo
+		Cuadruplo quadFunc = new Cuadruplo("defFunc", id.image, "_", "_");
+		quadCounter++;
+		cuadruplos.addElement(quadFunc);
 	}
 
 	<TK_LPAR>
@@ -528,16 +544,22 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 		// Crea variable param1, param2... cuyo valor es el nombre dado por el usuario
 		var = <TK_ID>
 		{
+			// Crear cuadruplo
 			numParam++;
-			Memoria.asignarParametro(id.image, "param" + numParam, var.image);
+			Cuadruplo quadParam = new Cuadruplo("defParam", id.image, "param" + numParam, var.image);
+			quadCounter++;
+			cuadruplos.addElement(quadParam);
 		}
 
 		( 
 			<TK_COMMA> 
 			var = <TK_ID>
 			{
+				// Crear cuadruplo
 				numParam++;
-				Memoria.asignarParametro(id.image, "param" + numParam, var.image);
+				Cuadruplo quadParam2 = new Cuadruplo("defParam", id.image, "param" + numParam, var.image);
+				quadCounter++;
+				cuadruplos.addElement(quadParam2);
 			}			
 		)* 
 
@@ -546,14 +568,15 @@ void Definicion_Func() : {Token id, var; int numParam = 0;}
 
 	// Se agrega el punto de inicio de la función 
 	{
-		Memoria.setFuncStart(id.image, quadCounter+1 );
+		Memoria.setFuncStart(id.image, quadCounter+1);
 	}
 
 	Secuencia()
 	{
-		Cuadruplo quad = new Cuadruplo("endproc", "", "", "");
+		// Crear cuadruplo
+		Cuadruplo quad = new Cuadruplo("endproc", "_", "_", "_");
 		quadCounter++;
-		cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(quad);
 	}
 
 }
@@ -567,21 +590,20 @@ void Condicion() : {String op1, r;}
 	{
 		op1 = (String)pOperands.pop();
 
-		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "", "");
+		// Crear cuadruplo
+		Cuadruplo quadTrue = new Cuadruplo("GotoF", op1, "_", "_");
 		quadCounter++;
-
-		cuadruplos.addElement(quadTrue); // Agregarlo a la queue de cuadruplos
-
+		cuadruplos.addElement(quadTrue);
 		pJumps.push("" + (quadCounter-1));
 	}
 	Secuencia()
 
 	(<TK_ELSE> 
 	{
-		Cuadruplo quadFalse = new Cuadruplo("Goto", "", "", "");
+		// Crear cuadruplo
+		Cuadruplo quadFalse = new Cuadruplo("Goto", "_", "_", "_");
 		quadCounter++;
-
-		cuadruplos.addElement(quadFalse); // Agregarlo a la queue de cuadruplos
+		cuadruplos.addElement(quadFalse);
 
 		String falso = (String)pJumps.pop();
 		pJumps.push("" + (quadCounter-1));
@@ -606,9 +628,10 @@ void Arreglo() : {Token id; String op1, op2; int index = 0;}
     		op1 = id.image;
 	  		op2 = (String)pOperands.pop();
 
-	  		Cuadruplo declaracion = new Cuadruplo("arr",op1,op2,"");
+	  		// Crear cuadruplo
+	  		Cuadruplo declaracion = new Cuadruplo("arr",op1,op2,"_");
 	  		quadCounter++;
-	  		cuadruplos.addElement(declaracion); // Agregarlo a la queue de cuadruplos
+	  		cuadruplos.addElement(declaracion);
 	  		
     	}
 	
@@ -621,12 +644,11 @@ void Arreglo() : {Token id; String op1, op2; int index = 0;}
 			op1 = (String)pOperands.pop(); // Valor que se va a asignar
 			op2 = "" + index; // Indice del arreglo
 
+			// Crear cuadruplo
 			Cuadruplo asignacion = new Cuadruplo("=", op1, op2, id.image);
 			quadCounter++;
-
 			index++;
-
-			cuadruplos.addElement(asignacion); // Agregarlo a la queue de cuadruplos
+			cuadruplos.addElement(asignacion);
 
 		}
 
@@ -636,12 +658,11 @@ void Arreglo() : {Token id; String op1, op2; int index = 0;}
 			op1 = (String)pOperands.pop(); // Valor que se va a asignar
 			op2 = "" + index; // Indice del arreglo
 
+			// Crear cuadruplo
 			Cuadruplo asignacion2 = new Cuadruplo("=", op1, op2, id.image);
 			quadCounter++;
-
 			index++;
-
-			cuadruplos.addElement(asignacion2); // Agregarlo a la queue de cuadruplos
+			cuadruplos.addElement(asignacion2);
 		}
 
 		)*
@@ -680,10 +701,8 @@ void PendingOperator(String operator1, String operator2) : {String o, op1,  op2,
 				// Crear un cuadruplo y meterlos
 				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
 				quadCounter++;
-
 		    	pOperands.push(r);
-
-		    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+		    	cuadruplos.addElement(quad);
 		    }
 		}
 	}
@@ -711,24 +730,41 @@ void PendingOperatorBool() : {String o, op1,  op2, r;}
 				// Crear un cuadruplo y meterlos
 				Cuadruplo quad = new Cuadruplo(o, op1, op2, r);
 				quadCounter++;
-
 		    	pOperands.push(r);
-
-		    	cuadruplos.addElement(quad); // Agregarlo a la queue de cuadruplos
+		    	cuadruplos.addElement(quad);
 		    }
 		}
 	}
 }
 
 // Hace print a los cuadruplos
-void MostrarCuadruplos() : {}
+void GuardarCuadruplos() : {}
 {
 	{
-		for (int i=0; i < cuadruplos.size(); i++) {
-			System.out.print(i+1 + ": \t");
-			Cuadruplo.displayCuadruplo((Cuadruplo)cuadruplos.get(i));
-		}
-		System.out.print("\n");
+		try {
+				// Crea un cuadro de dialogo. El input se guarda en strNomArchivo
+				String strNomArchivo = "";
+
+				// Si el campo quedo vacío o se cerró la ventana, volver a mostrarlo
+				while (strNomArchivo==null || strNomArchivo.trim().isEmpty()) {
+					strNomArchivo = (String)JOptionPane.showInputDialog(
+			                null, "Escribe el nombre que tendra el archivo", "Input", JOptionPane.PLAIN_MESSAGE, null, null, null);
+				}
+
+				// objeto printwriter con el nombre del archivo
+                PrintWriter codigoObj = new PrintWriter(strNomArchivo);
+
+                // Agrega uno por uno los cuadruplos al archivo
+                for (int i=0; i < cuadruplos.size(); i++) {
+					codigoObj.println( Cuadruplo.returnCuadruplo( (Cuadruplo)cuadruplos.get(i) ) );
+				}
+
+				// cierra el archivo
+				codigoObj.close();
+
+            } catch(FileNotFoundException e) { 
+                System.out.println(e.getMessage());
+        }
 	}
 }
 

@@ -7,6 +7,7 @@
 import java.lang.String;
 import javax.swing.*; 
 import java.util.*;
+import java.io.*;
 
 public class MaquinaVirtual extends TurtleGraphicsWindow {
 
@@ -17,13 +18,88 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	public static Stack pContextos = new Stack();	// Stack para contextos. Se usa cuando una función llama a otra-
 	public static Stack pReturnPoints = new Stack(); // Stack de puntos de retorno. Para cuando una función llama a otra-
 
+	// Constructor. despliega la ventana gráfica
 	public MaquinaVirtual() {
 		super( 600, 600 );
+	}
+
+	public static void main(String[] args) {
+
+		Scanner scnInput = new Scanner(System.in);
+		String quadString = null;
+
+		
+			// Verificar que el archivo exista y se pueda abrir
+            try {
+
+            	// Crea un cuadro de dialogo. El input se guarda en strNomArchivo
+				String strNomArchivo = "";
+
+				// Si el campo quedo vacío o se cerró la ventana, volver a mostrarlo
+				while (strNomArchivo==null || strNomArchivo.trim().isEmpty()) {
+					strNomArchivo = (String)JOptionPane.showInputDialog(
+			                null, "Escribe el nombre del archivo", "Input", JOptionPane.PLAIN_MESSAGE, null, null, null);
+				}
+
+                FileReader fileReader = new FileReader(strNomArchivo);
+                BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+                // Vector donde se pondrán los cuádruplos y se usará para la ejecución
+                Vector cuadruplos = new Vector(1);
+                int quadCounter = 0;
+
+                // Mientras existan lineas en el archivo...
+                while((quadString = bufferedReader.readLine()) != null) {
+
+                	String[] str_quad = quadString.split("\\$"); // Separar el operador, operandos y resultado
+
+                	Cuadruplo quad = new Cuadruplo(str_quad[0],str_quad[1],str_quad[2],str_quad[3]); // usarlos para crear cuadruplo
+					quadCounter++; // incrementar contador de quads
+					cuadruplos.addElement(quad); // Agregarlo al vector de cuadruplos
+
+                } 
+
+                bufferedReader.close(); // Termina de leer el archivo
+
+                // Crear contexto global y main, desplegar output grafico e iniciar la ejecución
+                Memoria.addFunc("global");
+                Memoria.addFunc("main");
+
+                MaquinaVirtual mv = new MaquinaVirtual();
+                Ejecucion(cuadruplos);
+
+            }
+            catch (FileNotFoundException ex) {
+                System.out.println("Error: El archivo no existe");
+            }
+            catch (IOException ex) {
+                System.out.println("Error: No se puede leer el archivo");
+            }
+
 	}
 
 	public static void Ejecucion(Vector vector)
 	{	
 		int returnPoint = 0; // El punto al que regresa cuando termina una función
+
+		for (int i=0; i<vector.size(); i++)
+		{
+			Cuadruplo aux = (Cuadruplo)vector.get(i);	// aux es el cuadruplo actual
+			String operador = aux.getOperador();		// operador o funcion del cuadruplo
+			
+			// Dependiendo del operador, ejecuta la función correspondiente
+			switch (operador) {
+				case "defFunc":
+					Memoria.addFunc(aux.getOperador1()); // Agregar función a memoria
+					break;
+
+				case "defParam":
+					Memoria.asignarParametro(aux.getOperador1(), aux.getOperador2(), aux.getResultado());
+					System.out.println("Se ha asignado el prametro " + aux.getOperador2() + " = " + aux.getResultado() );
+					break;
+			}
+
+		}
 
 		// Para cada cuadruplo en el vector
 		for (int i=0; i<vector.size(); i++)
@@ -130,12 +206,46 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 				// FUNC
 				case "func":
 					contextoFuncion = aux.getOperador1(); // Definir el contexto de la función
+
+					System.out.println("Se definio el contexto " + aux.getOperador1());
+
 					break;
+
+					/*
+				// defFUNC
+				case "defFunc":
+					Memoria.addFunc(aux.getOperador1()); // Agregar función a memoria
+					break;
+					*/
 
 				// PARAM
 				case "param":
+
+				System.out.println("Llega a set param");
+
 					setParam(aux);
+
+					System.out.println("sale de set param");
+
 					break;
+
+					/*
+
+				// defPARAM
+				case "defParam":
+
+				System.out.println("op1: " + aux.getOperador1() );
+				System.out.println("op2: " + aux.getOperador2() );
+				System.out.println("tes: " + aux.getResultado() );
+
+					// Crea variable param1, param2... cuyo valor es el nombre dado por el usuario
+					Memoria.asignarParametro(aux.getOperador1(), aux.getOperador2(), aux.getResultado());
+
+					System.out.println("Se ha asignado el prametro " + aux.getOperador2() + " = " + aux.getResultado() );
+
+					break;
+
+					*/
 
 				// FORWARD
 				case "f":
@@ -345,22 +455,23 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 	// Print
 	public static void print (Cuadruplo aux) {
 
-		String str = aux.getOperador1(); // Nombre de la string en la tabla de strings
-		Vector stringVector = (Vector) TablaStrings.tablaStrings.get(str);  // El vector correspondiente a esa string
-		String s = ""; // String que se usará para el resultado, inicialmente vacia
+		String str = aux.getOperador1(); 	// String como aparece en el codigo objeto
+		String[] str_arr = str.split(";"); 	// Arreglo con cada elemento de la string separado
+		String elemento; 					// Cada variable, indice de arreglo o texto en el arreglo
+		String s = ""; 						// String que se usará para el resultado, inicialmente vacia
 
-		// Para cada elemento en el vector
-		for (int i=0; i < stringVector.size(); i++) {
+		// Para cada elemento del arreglo
+		for (int i=0; i < str_arr.length; i++) {
 
-			String vectorElement = (String) stringVector.get(i); // Convertir el elemento a string
+			elemento = str_arr[i];
 
 			// Si el primer caracter son comillas, quitar las comillas y concatenar al resultado
-			if ( vectorElement.substring(0,1).equals("\"")   ) {
-				s = s + vectorElement.substring(1, vectorElement.length() - 1);
+			if ( elemento.substring(0,1).equals("\"")   ) {
+				s = s + elemento.substring(1, elemento.length() - 1);
 			}
 			// Si no, obtener su valor, hacerlo string y concatenarlo
 			else {
-				s = s + String.valueOf(getValorOperador(vectorElement));
+				s = s + String.valueOf(getValorOperador(elemento));
 			}
 		}
 
@@ -408,7 +519,13 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		int op = getValorOperador(str_op); // El valor de la variable que se asignará al parámetro
 
 		String numParam = aux.getResultado(); // El parámetro al cual se asignará el valor
+
+		System.out.println("contextoFuncion es: " + contextoFuncion);
+		System.out.println("numParam es: " + numParam);
+
+
 		String nombreParam = Memoria.getNombreParametro(contextoFuncion, numParam); // Nombre que el usuario dio al parametro
+
 
 		Memoria.asignarValor(contextoFuncion, nombreParam, op);
 	}
@@ -421,7 +538,7 @@ public class MaquinaVirtual extends TurtleGraphicsWindow {
 		String op1 = aux.getOperador1();
 		int valor = getValorOperador(op1); // Valor del primer operador
 
-		if ( !(aux.getOperador2()).equals("") ) { // Si el segundo operador no está vacío la variable es un arreglo.
+		if ( !(aux.getOperador2()).equals("_") ) { // Si el segundo operador no es underscore la variable es un arreglo.
 			int indice = getValorOperador(aux.getOperador2());
 			Memoria.asignarValorArreglo(temp, valor, indice); // Asignar valor a ese arreglo en ese indice
 		}

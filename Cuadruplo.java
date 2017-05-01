@@ -29,6 +29,10 @@ public class Cuadruplo {
 	public static void displayCuadruplo(Cuadruplo cuadruplo) {
 	System.out.println( cuadruplo.operador + "  \t" + cuadruplo.oper1 + "  \t" + cuadruplo.oper2 + "  \t" + cuadruplo.resultado );
 	}
+
+	public static String returnCuadruplo(Cuadruplo cuadruplo) {
+		return cuadruplo.operador + "$" + cuadruplo.oper1 + "$" + cuadruplo.oper2 + "$" + cuadruplo.resultado;
+	}
 	
 	public String getOperador()
 	{
