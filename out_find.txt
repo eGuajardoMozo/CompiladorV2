@@ -1,0 +1,36 @@
+arr$A$5$_
+=$3$0$A
+=$20$1$A
+=$45$2$A
+=$0$3$A
+=$20$4$A
+main$_$_$28
+defFunc$encuentra$_$_
+defParam$encuentra$param1$ini
+defParam$encuentra$param2$fin
+defParam$encuentra$param3$num
+=$fin$_$i
+=$0$_$encontrado
+>$i$ini$t1
+GotoF$t1$_$23
+==$A-i$num$t2
+GotoF$t2$_$20
+=$1$_$encontrado
+=$i$_$indice
+-$i$1$t3
+=$t3$_$i
+Goto$_$_$14
+GotoF$encontrado$_$26
+pr$"Se encontro el valor en el índice ";indice;$_$_
+Goto$_$_$27
+pr$"No se encontro ";num;" en el arreglo";$_$_
+endproc$_$_$_
+in$inicial$_$_
+in$final$_$_
+in$numero$_$_
+func$encuentra$_$_
+param$inicial$_$param1
+param$final$_$param2
+param$numero$_$param3
+gosub$encuentra$_$12
+end$_$_$_

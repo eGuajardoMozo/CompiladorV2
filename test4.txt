@@ -1,5 +1,0 @@
-2 < 5
-hello = 5
-3 * hello
-hello2 = hello * 6 + 7
-hello2 < 5

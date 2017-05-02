@@ -1,0 +1,26 @@
+=$3$_$size
+arr$A$size$_
+=$1$0$A
+=$7$1$A
+=$6$2$A
+arr$B$size$_
+=$3$0$B
+=$2$1$B
+=$4$2$B
+main$_$_$24
+defFunc$mult$_$_
+=$0$_$i
+=$0$_$aux
+<$i$size$t1
+GotoF$t1$_$22
+*$A-i$B-i$t2
++$aux$t2$t3
+=$t3$_$aux
++$i$1$t4
+=$t4$_$i
+Goto$_$_$14
+pr$"El resultado es ";aux;$_$_
+endproc$_$_$_
+func$mult$_$_
+gosub$mult$_$12
+end$_$_$_

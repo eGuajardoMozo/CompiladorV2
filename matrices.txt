@@ -1,0 +1,25 @@
+size = 3
+
+arr A[size] = (1, 7, 6)
+arr B[size] = (3, 2, 4)
+
+func mult() {
+
+	i = 0,
+	aux = 0,
+
+	while (i < size) {
+
+		aux = aux + A[i] * B[i],
+
+		i = i + 1
+	},
+
+	print("El resultado es " + aux)
+}
+
+main() 
+{
+	mult()
+
+}

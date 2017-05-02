@@ -1,0 +1,37 @@
+
+func star( x, y, size ) {
+
+	pu(),
+	move(x, y),
+	pd(),
+
+	l(54),
+	f(size),
+
+	r(144),
+	f(size),
+
+	r(144),
+	f(size),
+
+	r(144),
+	f(size),
+
+	r(144),
+	f(size),
+	r(216)
+}
+
+
+
+main() {
+
+	input(num),
+
+	i = 0,
+	while(i < 10) {
+
+		star( 40 * i, 40 * i, num),
+		i = i + 1
+	}	
+}

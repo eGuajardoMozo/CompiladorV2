@@ -1,0 +1,13 @@
+main$_$_$2
+in$n$_$_
+=$1$_$factorial
+=$n$_$i
+>$i$1$t1
+GotoF$t1$_$12
+*$factorial$i$t2
+=$t2$_$factorial
+-$i$1$t3
+=$t3$_$i
+Goto$_$_$5
+pr$"El factorial de ";n;" es: ";factorial;$_$_
+end$_$_$_
